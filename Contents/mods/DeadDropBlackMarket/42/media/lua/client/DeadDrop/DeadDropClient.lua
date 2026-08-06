@@ -12,6 +12,7 @@ local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
 local REEL_DURATION = 4000
 local LOCK_DURATION = 1000
 local REVEAL_TIME = REEL_DURATION + LOCK_DURATION
+local REEL_ITEM_COUNT = 32
 
 local messages = {
     no_money = "You need $1 in cash.",
@@ -30,6 +31,8 @@ local rarityColors = {
     Rare = { r = 0.30, g = 0.50, b = 0.76 },
     Contraband = { r = 0.70, g = 0.18, b = 0.18 },
 }
+
+local scanningColor = { r = 0.58, g = 0.57, b = 0.52 }
 
 DeadDropOpenPanel = ISPanel:derive("DeadDropOpenPanel")
 
@@ -64,8 +67,8 @@ function DeadDropOpenPanel:new(rarity, lootText, itemId)
             end
         end
     end
-    for index = 1, 12 do
-        table.insert(panel.reel, candidates[(index * 5 - 1) % #candidates + 1])
+    for _ = 1, REEL_ITEM_COUNT do
+        table.insert(panel.reel, candidates[ZombRand(#candidates) + 1])
     end
     table.insert(panel.reel, panel.loot[1] and panel.loot[1].texture or nil)
     panel.startedAt = getTimestampMs()
@@ -104,7 +107,8 @@ end
 function DeadDropOpenPanel:prerender()
     ISPanel.prerender(self)
     local elapsed = getTimestampMs() - self.startedAt
-    local color = self.color
+    -- Do not expose the result through the accent color before the reveal.
+    local color = self.revealed and self.color or scanningColor
     local title = elapsed < REEL_DURATION and "SCANNING SUPPLY CHANNEL..."
         or (not self.revealed and "SIGNAL LOCKED" or string.upper(self.rarity) .. " CACHE")
 
@@ -118,7 +122,14 @@ function DeadDropOpenPanel:prerender()
         local target = reelLeft + (#self.reel - 1) * slotWidth - self.width / 2
         local offset = target * eased
 
-        self:drawRect(reelLeft, 68, reelRight - reelLeft, 92, 0.72, 0.025, 0.027, 0.025)
+        local reelTop, reelHeight = 68, 92
+        self:drawRect(reelLeft, reelTop, reelRight - reelLeft, reelHeight,
+            0.72, 0.025, 0.027, 0.025)
+
+        -- Keep partially-visible slots inside the reel viewport. The extra
+        -- 44px in the visibility check makes slots enter smoothly, but without
+        -- a stencil their backgrounds and icons spill over the panel edges.
+        self:setStencilRect(reelLeft, reelTop, reelRight - reelLeft, reelHeight)
         for index, texture in ipairs(self.reel) do
             local x = reelLeft + (index - 1) * slotWidth - offset
             if x > reelLeft - 44 and x < reelRight + 44 then
@@ -128,10 +139,11 @@ function DeadDropOpenPanel:prerender()
                 end
             end
         end
+        self:clearStencilRect()
         self:drawRect(self.width / 2 - 38, 68, 76, 3, 1, color.r, color.g, color.b)
         self:drawRect(self.width / 2 - 38, 157, 76, 3, 1, color.r, color.g, color.b)
         local status = elapsed < REEL_DURATION and "SIGNAL LOCK " .. math.floor(progress * 100) .. "%"
-            or "TARGET: " .. string.upper(self.rarity)
+            or "TARGET ACQUIRED"
         self:drawTextCentre(status, self.width / 2, 176,
             0.55, 0.55, 0.50, 1, UIFont.Small)
     elseif self.revealed then

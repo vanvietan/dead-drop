@@ -5,13 +5,18 @@ DeadDropServer = DeadDropServer or {}
 local MODULE = "DeadDrop"
 local CRATE = "DeadDrop.BlackMarketCrate"
 local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
-local FORCED_RARITY = { [2] = "Common", [3] = "Uncommon", [4] = "Rare", [5] = "Contraband" }
+local RARITY_OPTIONS = {
+    { name = "Common", option = "CommonChance", default = 60 },
+    { name = "Uncommon", option = "UncommonChance", default = 25 },
+    { name = "Rare", option = "RareChance", default = 12 },
+    { name = "Contraband", option = "ContrabandChance", default = 3 },
+}
 local REVEAL_DELAY = 5000
 
 DeadDropServer.pending = DeadDropServer.pending or {}
 
-for _, rarity in pairs(FORCED_RARITY) do
-    assert(DeadDropLoot.bundles[rarity], "[DeadDrop] invalid forced rarity " .. rarity)
+for _, rarity in ipairs(RARITY_OPTIONS) do
+    assert(DeadDropLoot.bundles[rarity.name], "[DeadDrop] invalid rarity " .. rarity.name)
 end
 
 local function settings()
@@ -129,6 +134,28 @@ local function prepareRewards(bundle)
     return rewards, table.concat(loot, "|")
 end
 
+local function configuredRarities(options)
+    local rarities = {}
+    local total = 0
+    for _, config in ipairs(RARITY_OPTIONS) do
+        local weight = tonumber(options and options[config.option])
+        if weight == nil then weight = config.default end
+        weight = math.max(0, math.min(100, math.floor(weight)))
+        table.insert(rarities, { name = config.name, weight = weight })
+        total = total + weight
+    end
+
+    -- An all-zero setup cannot be rolled; restore the documented defaults.
+    if total == 0 then
+        rarities = {}
+        for _, config in ipairs(RARITY_OPTIONS) do
+            table.insert(rarities, { name = config.name, weight = config.default })
+        end
+        total = 100
+    end
+    return rarities, total
+end
+
 function DeadDropServer.handleOpen(player, args)
     if not enabled() then return result("open", "disabled") end
 
@@ -148,9 +175,8 @@ function DeadDropServer.handleOpen(player, args)
         return result("open", "ok", pending.rarity, pending.loot, itemId)
     end
 
-    local options = settings()
-    local rarity = FORCED_RARITY[options and options.ForcedRarity or 1]
-        or DeadDropLoot.selectRarity(ZombRand(100) + 1)
+    local rarities, totalWeight = configuredRarities(settings())
+    local rarity = DeadDropLoot.selectRarity(ZombRand(totalWeight) + 1, rarities)
     local rewards, loot = prepareRewards(DeadDropLoot.randomBundle(rarity))
     if not rewards then
         return result("open", "config_error")

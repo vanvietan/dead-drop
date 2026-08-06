@@ -214,9 +214,9 @@ DeadDropLoot.bundles = {
     },
 }
 
-function DeadDropLoot.selectRarity(roll)
+function DeadDropLoot.selectRarity(roll, rarities)
     local upper = 0
-    for _, rarity in ipairs(DeadDropLoot.rarities) do
+    for _, rarity in ipairs(rarities or DeadDropLoot.rarities) do
         upper = upper + rarity.weight
         if roll <= upper then
             return rarity.name

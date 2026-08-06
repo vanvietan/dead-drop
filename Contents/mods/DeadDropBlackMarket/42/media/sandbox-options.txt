@@ -16,14 +16,44 @@ option DeadDrop.FreeOrders
     translation = DeadDrop_FreeOrders,
 }
 
-option DeadDrop.ForcedRarity
+option DeadDrop.CommonChance
 {
-    type = enum,
-    numValues = 5,
-    default = 1,
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 60,
     page = DeadDrop,
-    translation = DeadDrop_ForcedRarity,
-    valueTranslation = DeadDrop_ForcedRarity,
+    translation = DeadDrop_CommonChance,
+}
+
+option DeadDrop.UncommonChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 25,
+    page = DeadDrop,
+    translation = DeadDrop_UncommonChance,
+}
+
+option DeadDrop.RareChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 12,
+    page = DeadDrop,
+    translation = DeadDrop_RareChance,
+}
+
+option DeadDrop.ContrabandChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 3,
+    page = DeadDrop,
+    translation = DeadDrop_ContrabandChance,
 }
 
 option DeadDrop.DebugLogging

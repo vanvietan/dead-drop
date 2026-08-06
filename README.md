@@ -24,7 +24,7 @@ The server removes one cash item and rolls the rarity. A Project Zomboid-style i
 
 ## Sandbox Options
 
-The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. For testing, **Free Orders** skips cash consumption, **Forced Rarity** selects a specific loot tier, and **Debug Logging** writes successful orders and results to the game/server console. Set **Forced Rarity** to **Off (Random)** to use the normal rarity roll. This is the default, so normal gameplay is preserved.
+The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. **Free Orders** skips cash consumption, and **Debug Logging** writes successful orders and results to the game/server console. The four rarity chance fields default to **60% Common, 25% Uncommon, 12% Rare, and 3% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all four are zero, the defaults are used.
 
 ## Test
 
@@ -32,6 +32,6 @@ The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mo
 - Turn the radio off or remove its power and confirm the menu option is disabled with an explanation.
 - In multiplayer, have a client order and open a crate; confirm inventory changes appear on both client and server and the same crate cannot be opened twice.
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.
-- The shared loot file asserts at load time that rarity weights total 100 and every roll from 1 through 100 maps to a valid rarity.
+- The shared loot file asserts at load time that the default rarity weights total 100 and every default roll from 1 through 100 maps to a valid rarity.
 
-Edit loot bundles and rarity weights in `42/media/lua/shared/DeadDrop/DeadDropLoot.lua`.
+Edit loot bundles in `42/media/lua/shared/DeadDrop/DeadDropLoot.lua`; configure rarity chances from the sandbox options.
