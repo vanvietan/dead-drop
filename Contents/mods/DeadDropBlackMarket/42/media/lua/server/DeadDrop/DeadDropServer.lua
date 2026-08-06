@@ -6,6 +6,9 @@ local MODULE = "DeadDrop"
 local CRATE = "DeadDrop.BlackMarketCrate"
 local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
 local FORCED_RARITY = { [2] = "Common", [3] = "Uncommon", [4] = "Rare", [5] = "Contraband" }
+local REVEAL_DELAY = 5000
+
+DeadDropServer.pending = DeadDropServer.pending or {}
 
 for _, rarity in pairs(FORCED_RARITY) do
     assert(DeadDropLoot.bundles[rarity], "[DeadDrop] invalid forced rarity " .. rarity)
@@ -25,8 +28,8 @@ local function debugLog(message)
     if options and options.DebugLogging then print("[DeadDrop] " .. message) end
 end
 
-local function result(action, status, rarity, loot)
-    return { action = action, status = status, rarity = rarity, loot = loot }
+local function result(action, status, rarity, loot, itemId)
+    return { action = action, status = status, rarity = rarity, loot = loot, itemId = itemId }
 end
 
 local function findFirstItem(inventory, fullTypes)
@@ -140,6 +143,11 @@ function DeadDropServer.handleOpen(player, args)
         return result("open", "crate_missing")
     end
 
+    local pending = DeadDropServer.pending[itemId]
+    if pending then
+        return result("open", "ok", pending.rarity, pending.loot, itemId)
+    end
+
     local options = settings()
     local rarity = FORCED_RARITY[options and options.ForcedRarity or 1]
         or DeadDropLoot.selectRarity(ZombRand(100) + 1)
@@ -148,15 +156,40 @@ function DeadDropServer.handleOpen(player, args)
         return result("open", "config_error")
     end
 
+    DeadDropServer.pending[itemId] = {
+        rarity = rarity,
+        rewards = rewards,
+        loot = loot,
+        readyAt = getTimestampMs() + REVEAL_DELAY,
+    }
+    debugLog("roll player=" .. tostring(player:getUsername()) .. " rarity=" .. rarity .. " loot=" .. loot)
+    return result("open", "ok", rarity, loot, itemId)
+end
+
+function DeadDropServer.handleClaim(player, args)
+    local itemId = args and tonumber(args.itemId)
+    local pending = itemId and DeadDropServer.pending[itemId]
+    if not pending or getTimestampMs() < pending.readyAt then
+        return result("claim", "pending")
+    end
+
+    local inventory = player:getInventory()
+    local crate = findItemById(inventory, CRATE, itemId)
+    if not crate then
+        DeadDropServer.pending[itemId] = nil
+        return result("claim", "crate_missing")
+    end
+
+    DeadDropServer.pending[itemId] = nil
     local crateContainer = crate:getContainer()
     crateContainer:Remove(crate)
     sendRemoveItemFromContainer(crateContainer, crate)
-    for _, item in ipairs(rewards) do
+    for _, item in ipairs(pending.rewards) do
         inventory:AddItem(item)
         sendAddItemToContainer(inventory, item)
     end
-    debugLog("open player=" .. tostring(player:getUsername()) .. " rarity=" .. rarity .. " loot=" .. loot)
-    return result("open", "ok", rarity, loot)
+    debugLog("open player=" .. tostring(player:getUsername()) .. " rarity=" .. pending.rarity .. " loot=" .. pending.loot)
+    return result("claim", "ok", pending.rarity, pending.loot)
 end
 
 local function onClientCommand(module, command, player, args)
@@ -167,6 +200,8 @@ local function onClientCommand(module, command, player, args)
         response = DeadDropServer.handleOrder(player, args)
     elseif command == "open" then
         response = DeadDropServer.handleOpen(player, args)
+    elseif command == "claim" then
+        response = DeadDropServer.handleClaim(player, args)
     end
     if response then
         sendServerCommand(player, MODULE, "result", response)

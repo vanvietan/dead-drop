@@ -20,7 +20,7 @@ For a manually configured multiplayer server, add `DeadDropBlackMarket` to `Mods
 3. Right-click the radio and choose **Order Black Market Crate**.
 4. Right-click the delivered **Black Market Crate** in your inventory and choose **Open Crate**.
 
-The server removes one cash item, rolls the rarity, consumes the crate, and grants the loot. A Project Zomboid-style item reel runs for four seconds, locks onto the server-selected reward for one second, then reveals the full crate contents. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
+The server removes one cash item and rolls the rarity. A Project Zomboid-style item reel runs for four seconds, locks onto the server-selected reward for one second, then consumes the crate and grants the loot. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
 
 ## Sandbox Options
 

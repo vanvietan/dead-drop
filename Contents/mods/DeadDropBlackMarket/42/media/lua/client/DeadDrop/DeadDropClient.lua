@@ -21,6 +21,7 @@ local messages = {
     crate_missing = "That crate is no longer in your inventory.",
     config_error = "Dead Drop loot configuration is invalid.",
     disabled = "Dead Drop is disabled in Sandbox Options.",
+    pending = "Finish opening the current crate first.",
 }
 
 local rarityColors = {
@@ -32,13 +33,14 @@ local rarityColors = {
 
 DeadDropOpenPanel = ISPanel:derive("DeadDropOpenPanel")
 
-function DeadDropOpenPanel:new(rarity, lootText)
+function DeadDropOpenPanel:new(rarity, lootText, itemId)
     local width, height = 460, 330
     local panel = ISPanel:new((getCore():getScreenWidth() - width) / 2,
         (getCore():getScreenHeight() - height) / 2, width, height)
     setmetatable(panel, self)
     self.__index = self
     panel.rarity = rarity or "Common"
+    panel.itemId = itemId
     panel.color = rarityColors[panel.rarity] or rarityColors.Common
     panel.loot = {}
     for token in string.gmatch(lootText or "", "[^|]+") do
@@ -88,10 +90,15 @@ function DeadDropOpenPanel:update()
     ISPanel.update(self)
     self:setX((getCore():getScreenWidth() - self.width) / 2)
     self:setY((getCore():getScreenHeight() - self.height) / 2)
-    if not self.revealed and getTimestampMs() - self.startedAt >= REVEAL_TIME then
-        self.revealed = true
-        self.closeButton:setVisible(true)
+    if not self.claimSent and getTimestampMs() - self.startedAt >= REVEAL_TIME then
+        self.claimSent = true
+        DeadDropClient.claim(self.itemId)
     end
+end
+
+function DeadDropOpenPanel:reveal()
+    self.revealed = true
+    self.closeButton:setVisible(true)
 end
 
 function DeadDropOpenPanel:prerender()
@@ -99,12 +106,12 @@ function DeadDropOpenPanel:prerender()
     local elapsed = getTimestampMs() - self.startedAt
     local color = self.color
     local title = elapsed < REEL_DURATION and "SCANNING SUPPLY CHANNEL..."
-        or (elapsed < REVEAL_TIME and "SIGNAL LOCKED" or string.upper(self.rarity) .. " CACHE")
+        or (not self.revealed and "SIGNAL LOCKED" or string.upper(self.rarity) .. " CACHE")
 
     self:drawRect(16, 16, self.width - 32, 3, 0.9, color.r, color.g, color.b)
     self:drawTextCentre(title, self.width / 2, 30, 0.86, 0.85, 0.77, 1, UIFont.Medium)
 
-    if elapsed < REVEAL_TIME then
+    if not self.revealed then
         local reelLeft, reelRight, slotWidth = 30, self.width - 30, 88
         local progress = math.min(elapsed / REEL_DURATION, 1)
         local eased = 1 - math.pow(1 - progress, 3)
@@ -148,9 +155,9 @@ function DeadDropOpenPanel:destroy()
     if DeadDropClient.openPanel == self then DeadDropClient.openPanel = nil end
 end
 
-function DeadDropOpenPanel.show(rarity, loot)
+function DeadDropOpenPanel.show(rarity, loot, itemId)
     if DeadDropClient.openPanel then DeadDropClient.openPanel:destroy() end
-    local panel = DeadDropOpenPanel:new(rarity, loot)
+    local panel = DeadDropOpenPanel:new(rarity, loot, itemId)
     panel:initialise()
     panel:addToUIManager()
     panel:setAlwaysOnTop(true)
@@ -203,11 +210,16 @@ function DeadDropClient.showResult(response)
 
     if response.status == "ok" then
         if response.action == "open" then
-            DeadDropOpenPanel.show(response.rarity, response.loot)
+            DeadDropOpenPanel.show(response.rarity, response.loot, response.itemId)
+        elseif response.action == "claim" then
+            if DeadDropClient.openPanel then DeadDropClient.openPanel:reveal() end
         else
             HaloTextHelper.addGoodText(player, "Black market crate delivered.")
         end
     else
+        if response.action == "claim" and DeadDropClient.openPanel then
+            DeadDropClient.openPanel:destroy()
+        end
         HaloTextHelper.addBadText(player, messages[response.status] or "Dead Drop request failed.")
     end
 end
@@ -218,10 +230,20 @@ local function dispatch(player, command, args)
         return
     end
 
-    local response = command == "order"
-        and DeadDropServer.handleOrder(player, args)
-        or DeadDropServer.handleOpen(player, args)
+    local response
+    if command == "order" then
+        response = DeadDropServer.handleOrder(player, args)
+    elseif command == "open" then
+        response = DeadDropServer.handleOpen(player, args)
+    else
+        response = DeadDropServer.handleClaim(player, args)
+    end
     DeadDropClient.showResult(response)
+end
+
+function DeadDropClient.claim(itemId)
+    local player = getPlayer()
+    if player then dispatch(player, "claim", { itemId = itemId }) end
 end
 
 local function orderCrate(player, radio)
