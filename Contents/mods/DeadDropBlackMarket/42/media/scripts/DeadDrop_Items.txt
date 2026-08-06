@@ -6,7 +6,7 @@ module DeadDrop
         DisplayCategory = Container,
         ItemType = base:normal,
         Weight = 2.0,
-        Icon = TrapCrate,
+        Icon = BlackMarketCrate,
     }
 }
 

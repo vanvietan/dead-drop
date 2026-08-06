@@ -24,7 +24,7 @@ The server removes one cash item and rolls the rarity. A Project Zomboid-style i
 
 ## Sandbox Options
 
-The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. For testing, **Free Orders** skips cash consumption, **Forced Rarity** selects a specific loot tier, and **Debug Logging** writes successful orders and results to the game/server console. Defaults preserve normal gameplay.
+The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. For testing, **Free Orders** skips cash consumption, **Forced Rarity** selects a specific loot tier, and **Debug Logging** writes successful orders and results to the game/server console. Set **Forced Rarity** to **Off (Random)** to use the normal rarity roll. This is the default, so normal gameplay is preserved.
 
 ## Test
 

@@ -8,8 +8,8 @@ Sandbox_EN = {
     Sandbox_DeadDrop_FreeOrders_tooltip = "Orders do not require or consume Money, Gold Coins, or Silver Coins. Intended for testing.",
 
     Sandbox_DeadDrop_ForcedRarity = "Forced Rarity (Debug)",
-    Sandbox_DeadDrop_ForcedRarity_tooltip = "Force every opened crate to the selected rarity. Random preserves normal server RNG.",
-    Sandbox_DeadDrop_ForcedRarity_option1 = "Random",
+    Sandbox_DeadDrop_ForcedRarity_tooltip = "Force every opened crate to the selected rarity. Off uses the normal random rarity roll.",
+    Sandbox_DeadDrop_ForcedRarity_option1 = "Off (Random)",
     Sandbox_DeadDrop_ForcedRarity_option2 = "Common",
     Sandbox_DeadDrop_ForcedRarity_option3 = "Uncommon",
     Sandbox_DeadDrop_ForcedRarity_option4 = "Rare",
