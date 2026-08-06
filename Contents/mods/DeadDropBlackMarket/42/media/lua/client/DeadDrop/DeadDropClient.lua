@@ -3,16 +3,11 @@ require "ISUI/ISToolTip"
 require "ISUI/ISPanel"
 require "ISUI/ISButton"
 require "DeadDrop/DeadDropLoot"
+require "DeadDrop/DeadDropMoveable"
 
 DeadDropClient = DeadDropClient or {}
 
 local MODULE = "DeadDrop"
-local GATCHA_SPRITES = {
-    recreational_01_16 = true,
-    recreational_01_17 = true,
-    recreational_01_18 = true,
-    recreational_01_19 = true,
-}
 local REEL_DURATION = 7000
 local LOCK_DURATION = 1000
 local REVEAL_TIME = REEL_DURATION + LOCK_DURATION
@@ -195,9 +190,7 @@ local function freeOrders()
 end
 
 local function isGatchaMachine(object)
-    local sprite = object and object:getSprite()
-    local spriteName = sprite and sprite:getName()
-    return spriteName and GATCHA_SPRITES[spriteName] == true
+    return DeadDropMoveable.isMachineObject(object)
 end
 
 local function addTooltip(option, description)

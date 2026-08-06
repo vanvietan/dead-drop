@@ -31,7 +31,8 @@ The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mo
 - Try opening with no cash and with each accepted cash type, including cash inside a nested bag.
 - Confirm a Gatcha Machine can spawn in convenience-store and gas-station counters, be picked up, placed, picked up again, and moved to a base.
 - Confirm all four placed orientations show the **Open Crate** action.
-- Confirm radios and the PAWS pinball machine do not show the order action, and ordering from more than two tiles away is rejected.
+- Confirm a vanilla Dr. Oids cabinet never shows the action, while a Gatcha Machine keeps its name, icon, and action after repeated pickup/place cycles.
+- Confirm radios and the PAWS pinball machine do not show **Open Crate**, and opening from more than two tiles away is rejected.
 - In multiplayer, open a crate directly from the machine; confirm inventory changes appear on both client and server and the same request cannot be claimed twice.
 - Disconnect during the reel, reconnect, and use a machine again; confirm the same result resumes without consuming more cash.
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.

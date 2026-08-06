@@ -1,15 +1,10 @@
 require "DeadDrop/DeadDropLoot"
+require "DeadDrop/DeadDropMoveable"
 
 DeadDropServer = DeadDropServer or {}
 
 local MODULE = "DeadDrop"
 local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
-local GATCHA_SPRITES = {
-    recreational_01_16 = true,
-    recreational_01_17 = true,
-    recreational_01_18 = true,
-    recreational_01_19 = true,
-}
 local RARITY_OPTIONS = {
     { name = "Common", option = "CommonChance", default = 60 },
     { name = "Uncommon", option = "UncommonChance", default = 25 },
@@ -53,9 +48,7 @@ local function findFirstItem(inventory, fullTypes)
 end
 
 local function isGatchaMachine(object)
-    local sprite = object and object:getSprite()
-    local spriteName = sprite and sprite:getName()
-    return spriteName and GATCHA_SPRITES[spriteName] == true
+    return DeadDropMoveable.isMachineObject(object)
 end
 
 local function isInteger(value)
