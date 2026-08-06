@@ -1,12 +1,14 @@
 module DeadDrop
 {
-    item BlackMarketCrate
+    item GatchaMachine
     {
-        DisplayName = Black Market Crate,
-        DisplayCategory = Container,
-        ItemType = base:normal,
-        Weight = 2.0,
-        Icon = BlackMarketCrate,
+        DisplayName = Gatcha Machine,
+        DisplayCategory = Furniture,
+        ItemType = base:moveable,
+        Weight = 20.0,
+        Icon = GatchaMachine,
+        WorldObjectSprite = recreational_01_16,
     }
+
 }
 

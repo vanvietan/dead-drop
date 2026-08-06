@@ -15,22 +15,25 @@ For a manually configured multiplayer server, add `DeadDropBlackMarket` to `Mods
 
 ## Use
 
-1. Carry at least one `Money`, `Gold Coin`, or `Silver Coin`. Each counts as $1; money bundles do not count.
-2. Stand within two tiles of a powered, switched-on world radio.
-3. Right-click the radio and choose **Order Black Market Crate**.
-4. Right-click the delivered **Black Market Crate** in your inventory and choose **Open Crate**.
+1. Find a **Gatcha Machine** in a convenience-store or gas-station counter, then place it in the world. It can be picked up and moved back to your base.
+2. Carry at least one `Money`, `Gold Coin`, or `Silver Coin`. Each counts as $1; money bundles do not count.
+3. Stand within two tiles of the placed machine. It does not need power.
+4. Right-click the machine and choose **Open Crate**.
 
-The server removes one cash item and rolls the rarity. A Project Zomboid-style item reel runs for four seconds, locks onto the server-selected reward for one second, then consumes the crate and grants the loot. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
+The server removes one cash item and rolls the rarity. A Project Zomboid-style item reel runs for seven seconds, locks onto the server-selected reward for one second, then grants the loot directly. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
 
 ## Sandbox Options
 
-The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. **Free Orders** skips cash consumption, and **Debug Logging** writes successful orders and results to the game/server console. The four rarity chance fields default to **60% Common, 25% Uncommon, 12% Rare, and 3% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all four are zero, the defaults are used.
+The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. **Free Orders** skips cash consumption, and **Debug Logging** writes successful openings and results to the game/server console. The four rarity chance fields default to **60% Common, 25% Uncommon, 12% Rare, and 3% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all four are zero, the defaults are used.
 
 ## Test
 
-- Try ordering with no cash and with each accepted cash type, including cash inside a nested bag.
-- Turn the radio off or remove its power and confirm the menu option is disabled with an explanation.
-- In multiplayer, have a client order and open a crate; confirm inventory changes appear on both client and server and the same crate cannot be opened twice.
+- Try opening with no cash and with each accepted cash type, including cash inside a nested bag.
+- Confirm a Gatcha Machine can spawn in convenience-store and gas-station counters, be picked up, placed, picked up again, and moved to a base.
+- Confirm all four placed orientations show the **Open Crate** action.
+- Confirm radios and the PAWS pinball machine do not show the order action, and ordering from more than two tiles away is rejected.
+- In multiplayer, open a crate directly from the machine; confirm inventory changes appear on both client and server and the same request cannot be claimed twice.
+- Disconnect during the reel, reconnect, and use a machine again; confirm the same result resumes without consuming more cash.
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.
 - The shared loot file asserts at load time that the default rarity weights total 100 and every default roll from 1 through 100 maps to a valid rarity.
 

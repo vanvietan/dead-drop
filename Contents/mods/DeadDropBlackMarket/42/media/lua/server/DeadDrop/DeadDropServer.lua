@@ -3,17 +3,23 @@ require "DeadDrop/DeadDropLoot"
 DeadDropServer = DeadDropServer or {}
 
 local MODULE = "DeadDrop"
-local CRATE = "DeadDrop.BlackMarketCrate"
 local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
+local GATCHA_SPRITES = {
+    recreational_01_16 = true,
+    recreational_01_17 = true,
+    recreational_01_18 = true,
+    recreational_01_19 = true,
+}
 local RARITY_OPTIONS = {
     { name = "Common", option = "CommonChance", default = 60 },
     { name = "Uncommon", option = "UncommonChance", default = 25 },
     { name = "Rare", option = "RareChance", default = 12 },
     { name = "Contraband", option = "ContrabandChance", default = 3 },
 }
-local REVEAL_DELAY = 5000
+local REVEAL_DELAY = 8000
 
-DeadDropServer.pending = DeadDropServer.pending or {}
+DeadDropServer.pendingByPlayer = DeadDropServer.pendingByPlayer or {}
+DeadDropServer.nextRequestId = DeadDropServer.nextRequestId or 0
 
 for _, rarity in ipairs(RARITY_OPTIONS) do
     assert(DeadDropLoot.bundles[rarity.name], "[DeadDrop] invalid rarity " .. rarity.name)
@@ -33,8 +39,8 @@ local function debugLog(message)
     if options and options.DebugLogging then print("[DeadDrop] " .. message) end
 end
 
-local function result(action, status, rarity, loot, itemId)
-    return { action = action, status = status, rarity = rarity, loot = loot, itemId = itemId }
+local function result(action, status, rarity, loot, requestId)
+    return { action = action, status = status, rarity = rarity, loot = loot, requestId = requestId }
 end
 
 local function findFirstItem(inventory, fullTypes)
@@ -46,71 +52,36 @@ local function findFirstItem(inventory, fullTypes)
     end
 end
 
-local function findItemById(inventory, fullType, itemId)
-    local items = inventory:getAllTypeRecurse(fullType)
-    for i = 0, items:size() - 1 do
-        local item = items:get(i)
-        if item:getID() == itemId then
-            return item
-        end
-    end
+local function isGatchaMachine(object)
+    local sprite = object and object:getSprite()
+    local spriteName = sprite and sprite:getName()
+    return spriteName and GATCHA_SPRITES[spriteName] == true
 end
 
-local function activeRadioNear(player, args)
+local function isInteger(value)
+    return value and value == math.floor(value)
+end
+
+local function machineNear(player, args)
     local x, y, z, index = tonumber(args.x), tonumber(args.y), tonumber(args.z), tonumber(args.objectIndex)
-    if not x or not y or not z or not index or index < 0 then
-        return nil, "invalid_radio"
+    if not isInteger(x) or not isInteger(y) or not isInteger(z)
+            or not isInteger(index) or index < 0 then
+        return nil, "invalid_machine"
     end
 
     local square = getCell():getGridSquare(x, y, z)
     if not square or index >= square:getObjects():size() then
-        return nil, "invalid_radio"
+        return nil, "invalid_machine"
     end
 
-    local radio = square:getObjects():get(index)
-    local device = instanceof(radio, "IsoWaveSignal") and radio:getDeviceData() or nil
-    if not device or device:getIsTelevision() then
-        return nil, "invalid_radio"
+    local machine = square:getObjects():get(index)
+    if not isGatchaMachine(machine) then
+        return nil, "invalid_machine"
     end
     if player:getZ() ~= z or player:DistToSquared(x + 0.5, y + 0.5) > 4 then
         return nil, "too_far"
     end
-    if not device:getIsTurnedOn() or device:getPower() <= 0 then
-        return nil, "radio_off"
-    end
-    return radio
-end
-
-function DeadDropServer.handleOrder(player, args)
-    if not enabled() then return result("order", "disabled") end
-
-    local _, errorStatus = activeRadioNear(player, args or {})
-    if errorStatus then
-        return result("order", errorStatus)
-    end
-
-    local inventory = player:getInventory()
-    local options = settings()
-    local freeOrder = options and options.FreeOrders == true
-    local cash = not freeOrder and findFirstItem(inventory, CASH) or nil
-    if not freeOrder and not cash then
-        return result("order", "no_money")
-    end
-
-    local crate = instanceItem(CRATE)
-    if not crate then
-        return result("order", "config_error")
-    end
-
-    if cash then
-        local cashContainer = cash:getContainer()
-        cashContainer:Remove(cash)
-        sendRemoveItemFromContainer(cashContainer, cash)
-    end
-    inventory:AddItem(crate)
-    sendAddItemToContainer(inventory, crate)
-    debugLog("order player=" .. tostring(player:getUsername()) .. " free=" .. tostring(freeOrder))
-    return result("order", "ok")
+    return machine
 end
 
 local function prepareRewards(bundle)
@@ -159,20 +130,23 @@ end
 function DeadDropServer.handleOpen(player, args)
     if not enabled() then return result("open", "disabled") end
 
-    local itemId = args and tonumber(args.itemId)
-    if not itemId then
-        return result("open", "crate_missing")
+    local _, errorStatus = machineNear(player, args or {})
+    if errorStatus then
+        return result("open", errorStatus)
+    end
+
+    local playerKey = tostring(player:getUsername())
+    local pending = DeadDropServer.pendingByPlayer[playerKey]
+    if pending then
+        return result("open", "ok", pending.rarity, pending.loot, pending.requestId)
     end
 
     local inventory = player:getInventory()
-    local crate = findItemById(inventory, CRATE, itemId)
-    if not crate then
-        return result("open", "crate_missing")
-    end
-
-    local pending = DeadDropServer.pending[itemId]
-    if pending then
-        return result("open", "ok", pending.rarity, pending.loot, itemId)
+    local options = settings()
+    local freeOrder = options and options.FreeOrders == true
+    local cash = not freeOrder and findFirstItem(inventory, CASH) or nil
+    if not freeOrder and not cash then
+        return result("open", "no_money")
     end
 
     local rarities, totalWeight = configuredRarities(settings())
@@ -182,39 +156,45 @@ function DeadDropServer.handleOpen(player, args)
         return result("open", "config_error")
     end
 
-    DeadDropServer.pending[itemId] = {
+    if cash then
+        local cashContainer = cash:getContainer()
+        cashContainer:Remove(cash)
+        sendRemoveItemFromContainer(cashContainer, cash)
+    end
+
+    DeadDropServer.nextRequestId = DeadDropServer.nextRequestId + 1
+    local requestId = playerKey .. ":" .. tostring(getTimestampMs())
+        .. ":" .. tostring(DeadDropServer.nextRequestId)
+    DeadDropServer.pendingByPlayer[playerKey] = {
+        requestId = requestId,
         rarity = rarity,
         rewards = rewards,
         loot = loot,
         readyAt = getTimestampMs() + REVEAL_DELAY,
     }
-    debugLog("roll player=" .. tostring(player:getUsername()) .. " rarity=" .. rarity .. " loot=" .. loot)
-    return result("open", "ok", rarity, loot, itemId)
+    debugLog("open player=" .. playerKey .. " free=" .. tostring(freeOrder)
+        .. " rarity=" .. rarity .. " loot=" .. loot)
+    return result("open", "ok", rarity, loot, requestId)
 end
 
 function DeadDropServer.handleClaim(player, args)
-    local itemId = args and tonumber(args.itemId)
-    local pending = itemId and DeadDropServer.pending[itemId]
-    if not pending or getTimestampMs() < pending.readyAt then
+    local requestId = args and tostring(args.requestId or "")
+    local playerKey = tostring(player:getUsername())
+    local pending = DeadDropServer.pendingByPlayer[playerKey]
+    if not pending or pending.requestId ~= requestId then
+        return result("claim", "invalid_request")
+    end
+    if getTimestampMs() < pending.readyAt then
         return result("claim", "pending")
     end
 
     local inventory = player:getInventory()
-    local crate = findItemById(inventory, CRATE, itemId)
-    if not crate then
-        DeadDropServer.pending[itemId] = nil
-        return result("claim", "crate_missing")
-    end
-
-    DeadDropServer.pending[itemId] = nil
-    local crateContainer = crate:getContainer()
-    crateContainer:Remove(crate)
-    sendRemoveItemFromContainer(crateContainer, crate)
+    DeadDropServer.pendingByPlayer[playerKey] = nil
     for _, item in ipairs(pending.rewards) do
         inventory:AddItem(item)
         sendAddItemToContainer(inventory, item)
     end
-    debugLog("open player=" .. tostring(player:getUsername()) .. " rarity=" .. pending.rarity .. " loot=" .. pending.loot)
+    debugLog("claim player=" .. playerKey .. " rarity=" .. pending.rarity .. " loot=" .. pending.loot)
     return result("claim", "ok", pending.rarity, pending.loot)
 end
 
@@ -222,9 +202,7 @@ local function onClientCommand(module, command, player, args)
     if module ~= MODULE then return end
 
     local response
-    if command == "order" then
-        response = DeadDropServer.handleOrder(player, args)
-    elseif command == "open" then
+    if command == "open" then
         response = DeadDropServer.handleOpen(player, args)
     elseif command == "claim" then
         response = DeadDropServer.handleClaim(player, args)
