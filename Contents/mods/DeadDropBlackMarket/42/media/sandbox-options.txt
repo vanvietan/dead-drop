@@ -1,0 +1,35 @@
+VERSION = 1,
+
+option DeadDrop.Enabled
+{
+    type = boolean,
+    default = true,
+    page = DeadDrop,
+    translation = DeadDrop_Enabled,
+}
+
+option DeadDrop.FreeOrders
+{
+    type = boolean,
+    default = false,
+    page = DeadDrop,
+    translation = DeadDrop_FreeOrders,
+}
+
+option DeadDrop.ForcedRarity
+{
+    type = enum,
+    numValues = 5,
+    default = 1,
+    page = DeadDrop,
+    translation = DeadDrop_ForcedRarity,
+    valueTranslation = DeadDrop_ForcedRarity,
+}
+
+option DeadDrop.DebugLogging
+{
+    type = boolean,
+    default = false,
+    page = DeadDrop,
+    translation = DeadDrop_DebugLogging,
+}

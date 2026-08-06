@@ -1,0 +1,20 @@
+Sandbox_EN = {
+    Sandbox_DeadDrop = "Dead Drop: Black Market Crates",
+
+    Sandbox_DeadDrop_Enabled = "Enable Mod",
+    Sandbox_DeadDrop_Enabled_tooltip = "Show Dead Drop actions and allow ordering and opening crates.",
+
+    Sandbox_DeadDrop_FreeOrders = "Free Orders (Debug)",
+    Sandbox_DeadDrop_FreeOrders_tooltip = "Orders do not require or consume Money, Gold Coins, or Silver Coins. Intended for testing.",
+
+    Sandbox_DeadDrop_ForcedRarity = "Forced Rarity (Debug)",
+    Sandbox_DeadDrop_ForcedRarity_tooltip = "Force every opened crate to the selected rarity. Random preserves normal server RNG.",
+    Sandbox_DeadDrop_ForcedRarity_option1 = "Random",
+    Sandbox_DeadDrop_ForcedRarity_option2 = "Common",
+    Sandbox_DeadDrop_ForcedRarity_option3 = "Uncommon",
+    Sandbox_DeadDrop_ForcedRarity_option4 = "Rare",
+    Sandbox_DeadDrop_ForcedRarity_option5 = "Contraband",
+
+    Sandbox_DeadDrop_DebugLogging = "Debug Logging",
+    Sandbox_DeadDrop_DebugLogging_tooltip = "Write successful orders and crate results to console.txt and the server console.",
+}

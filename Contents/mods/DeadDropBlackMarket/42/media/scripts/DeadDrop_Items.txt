@@ -1,0 +1,12 @@
+module DeadDrop
+{
+    item BlackMarketCrate
+    {
+        DisplayName = Black Market Crate,
+        DisplayCategory = Container,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = TrapCrate,
+    }
+}
+

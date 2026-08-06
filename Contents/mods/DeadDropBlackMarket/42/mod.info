@@ -1,0 +1,5 @@
+name=Dead Drop: Black Market Supply Crates
+id=DeadDropBlackMarket
+description=Order randomized black market supply crates through powered radios using vanilla in-game cash.
+versionMin=42.19
+
