@@ -13,6 +13,14 @@ local LOCK_DURATION = 1000
 local REVEAL_TIME = REEL_DURATION + LOCK_DURATION
 local REEL_ITEM_COUNT = 32
 
+local function reelSoundStep(elapsed)
+    local progress = elapsed / REEL_DURATION
+    return math.floor((1 - math.pow(1 - progress, 3)) * REEL_ITEM_COUNT)
+end
+
+assert(reelSoundStep(0) == 0 and reelSoundStep(REEL_DURATION) == REEL_ITEM_COUNT,
+    "[DeadDrop] invalid reel sound timing")
+
 local messages = {
     no_money = "You need $1 in cash.",
     invalid_machine = "That Gatcha Machine is no longer available.",
@@ -70,6 +78,7 @@ function DeadDropOpenPanel:new(rarity, lootText, requestId)
     end
     table.insert(panel.reel, panel.loot[1] and panel.loot[1].texture or nil)
     panel.startedAt = getTimestampMs()
+    panel.lastSoundStep = -1
     panel.revealed = false
     panel.backgroundColor = { r = 0.055, g = 0.06, b = 0.055, a = 0.94 }
     panel.borderColor = { r = 0.40, g = 0.39, b = 0.34, a = 1 }
@@ -92,7 +101,15 @@ function DeadDropOpenPanel:update()
     self:setX((getCore():getScreenWidth() - self.width) / 2)
     self:setY((getCore():getScreenHeight() - self.height) / 2)
     local now = getTimestampMs()
-    if not self.revealed and now - self.startedAt >= REVEAL_TIME
+    local elapsed = now - self.startedAt
+    if not self.revealed and elapsed < REEL_DURATION then
+        local soundStep = reelSoundStep(elapsed)
+        if soundStep ~= self.lastSoundStep then
+            self.lastSoundStep = soundStep
+            getSoundManager():playUISound("UISelectListItem")
+        end
+    end
+    if not self.revealed and elapsed >= REVEAL_TIME
             and (not self.nextClaimAt or now >= self.nextClaimAt) then
         self.nextClaimAt = now + 500
         DeadDropClient.claim(self.requestId)
@@ -100,7 +117,9 @@ function DeadDropOpenPanel:update()
 end
 
 function DeadDropOpenPanel:reveal()
+    if self.revealed then return end
     self.revealed = true
+    getSoundManager():playUISound("UIAchievement")
     self.closeButton:setVisible(true)
 end
 
