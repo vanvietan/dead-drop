@@ -7,8 +7,7 @@ module DeadDrop
         ItemType = base:moveable,
         Weight = 20.0,
         Icon = GatchaMachine,
-        WorldObjectSprite = recreational_01_16,
+        WorldObjectSprite = dead_drop_gatcha_01_0,
     }
 
 }
-

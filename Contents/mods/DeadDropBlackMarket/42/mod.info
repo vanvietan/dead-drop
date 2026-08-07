@@ -3,3 +3,4 @@ id=DeadDropBlackMarket
 description=Find and relocate a Gatcha Machine to open randomized black market supply caches using in-game cash.
 poster=poster.png
 versionMin=42.19
+pack=dead_drop_gatcha

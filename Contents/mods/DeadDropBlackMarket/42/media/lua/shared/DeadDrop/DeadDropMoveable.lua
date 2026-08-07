@@ -6,12 +6,39 @@ local ITEM_TYPE = "DeadDrop.GatchaMachine"
 local MARKER = "DeadDropGatchaMachine"
 local MACHINE_NAME = "Gatcha Machine"
 local MACHINE_TEXTURE = "Item_GatchaMachine"
+local MACHINE_GROUP = "Dead Drop Gatcha Machine"
 local MACHINE_SPRITES = {
-    recreational_01_16 = true,
-    recreational_01_17 = true,
-    recreational_01_18 = true,
-    recreational_01_19 = true,
+    { name = "dead_drop_gatcha_01_0", facing = "W" },
+    { name = "dead_drop_gatcha_01_1", facing = "N" },
+    { name = "dead_drop_gatcha_01_2", facing = "E" },
+    { name = "dead_drop_gatcha_01_3", facing = "S" },
 }
+local MACHINE_SPRITE_NAMES = {}
+for _, def in ipairs(MACHINE_SPRITES) do MACHINE_SPRITE_NAMES[def.name] = true end
+local LEGACY_SPRITES = {
+    recreational_01_16 = MACHINE_SPRITES[1].name,
+    recreational_01_17 = MACHINE_SPRITES[2].name,
+    recreational_01_18 = MACHINE_SPRITES[3].name,
+    recreational_01_19 = MACHINE_SPRITES[4].name,
+}
+
+local function registerMachineSprites(manager)
+    for index, def in ipairs(MACHINE_SPRITES) do
+        local sprite = manager:AddSprite(def.name, 42190000 + index)
+        sprite:setName(def.name)
+        local properties = sprite:getProperties()
+        properties:set("BlocksPlacement")
+        properties:set("CustomItem", ITEM_TYPE)
+        properties:set("CustomName", MACHINE_NAME)
+        properties:set("Facing", def.facing)
+        properties:set("GroupName", MACHINE_GROUP)
+        properties:set("IsMoveAble")
+        properties:set("PickUpWeight", "200")
+        properties:CreateKeySet()
+    end
+end
+
+Events.OnLoadedTileDefinitions.Add(registerMachineSprites)
 
 local function spriteName(object)
     local sprite = object and object.getSprite and object:getSprite()
@@ -24,9 +51,27 @@ local function hasMarker(value)
     return modData and modData[MARKER] == true
 end
 
-function DeadDropMoveable.isMachineObject(object)
+local function migrateLegacyObject(object)
     local name = spriteName(object)
-    return name and MACHINE_SPRITES[name] == true and hasMarker(object)
+    local replacement = name and LEGACY_SPRITES[name]
+    if not replacement or not hasMarker(object) then return name end
+
+    object:setSprite(replacement)
+    if isClient and isClient() then object:transmitUpdatedSpriteToServer() end
+    if isServer and isServer() then object:transmitUpdatedSpriteToClients() end
+    return replacement
+end
+
+local function migrateLegacySquare(square)
+    local objects = square:getObjects()
+    for index = 0, objects:size() - 1 do migrateLegacyObject(objects:get(index)) end
+end
+
+Events.LoadGridsquare.Add(migrateLegacySquare)
+
+function DeadDropMoveable.isMachineObject(object)
+    local name = migrateLegacyObject(object)
+    return name and MACHINE_SPRITE_NAMES[name] == true and hasMarker(object)
 end
 
 function DeadDropMoveable.isMachineItem(item)
@@ -47,7 +92,7 @@ end
 local function markObject(object)
     if not object or not object.getModData then return end
     local name = spriteName(object)
-    if not name or MACHINE_SPRITES[name] ~= true then return end
+    if not name or MACHINE_SPRITE_NAMES[name] ~= true then return end
     object:getModData()[MARKER] = true
     if object.transmitModData then object:transmitModData() end
 end
