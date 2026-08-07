@@ -1,5 +1,6 @@
-name=Dead Drop: Black Market Supply Crates
-id=DeadDropBlackMarket
+version=1
+id=0
+title=Dead Drop: Black Market Supply Crates
 description=Find and relocate a Gatcha Machine to open randomized black market supply caches using in-game cash.
-poster=poster.png
-versionMin=42.19
+tags=Build 42
+visibility=public
