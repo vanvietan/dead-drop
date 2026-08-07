@@ -8,16 +8,19 @@ Sandbox_EN = {
     Sandbox_DeadDrop_FreeOrders_tooltip = "Orders do not require or consume Money, Gold Coins, or Silver Coins. Intended for testing.",
 
     Sandbox_DeadDrop_CommonChance = "Common Chance (%)",
-    Sandbox_DeadDrop_CommonChance_tooltip = "Relative chance for a Common crate. All four rarity values are normalized automatically.",
+    Sandbox_DeadDrop_CommonChance_tooltip = "Relative chance for a Common crate. All five rarity values are normalized automatically.",
 
     Sandbox_DeadDrop_UncommonChance = "Uncommon Chance (%)",
-    Sandbox_DeadDrop_UncommonChance_tooltip = "Relative chance for an Uncommon crate. All four rarity values are normalized automatically.",
+    Sandbox_DeadDrop_UncommonChance_tooltip = "Relative chance for an Uncommon crate. All five rarity values are normalized automatically.",
 
     Sandbox_DeadDrop_RareChance = "Rare Chance (%)",
-    Sandbox_DeadDrop_RareChance_tooltip = "Relative chance for a Rare crate. All four rarity values are normalized automatically.",
+    Sandbox_DeadDrop_RareChance_tooltip = "Relative chance for a Rare crate. All five rarity values are normalized automatically.",
+
+    Sandbox_DeadDrop_EpicChance = "Epic Chance (%)",
+    Sandbox_DeadDrop_EpicChance_tooltip = "Relative chance for an Epic crate. All five rarity values are normalized automatically.",
 
     Sandbox_DeadDrop_ContrabandChance = "Contraband Chance (%)",
-    Sandbox_DeadDrop_ContrabandChance_tooltip = "Relative chance for a Contraband crate. All four rarity values are normalized automatically.",
+    Sandbox_DeadDrop_ContrabandChance_tooltip = "Relative chance for a Contraband crate. All five rarity values are normalized automatically.",
 
     Sandbox_DeadDrop_DebugLogging = "Debug Logging",
     Sandbox_DeadDrop_DebugLogging_tooltip = "Write successful orders and crate results to console.txt and the server console.",

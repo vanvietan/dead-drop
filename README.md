@@ -24,13 +24,14 @@ The server removes one cash item and rolls the rarity. A Project Zomboid-style i
 
 ## Sandbox Options
 
-The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. **Free Orders** skips cash consumption, and **Debug Logging** writes successful openings and results to the game/server console. The four rarity chance fields default to **60% Common, 25% Uncommon, 12% Rare, and 3% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all four are zero, the defaults are used.
+The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. **Free Orders** skips cash consumption, and **Debug Logging** writes successful openings and results to the game/server console. Each rarity has its own configurable chance, defaulting to **30% Common, 25% Uncommon, 20% Rare, 15% Epic, and 10% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all five are zero, the defaults are used.
 
 ## Test
 
 - Try opening with no cash and with each accepted cash type, including cash inside a nested bag.
 - Confirm a Gatcha Machine can spawn in convenience-store and gas-station counters, be picked up, placed, picked up again, and moved to a base.
 - Confirm all four placed orientations show the **Open Crate** action.
+- With **Free Orders** enabled, set each rarity chance to 100 in turn (and the others to 0) and confirm all five tiers can be awarded with the expected color and loot.
 - Confirm a vanilla Dr. Oids cabinet never shows the action, while a Gatcha Machine keeps its name, icon, and action after repeated pickup/place cycles.
 - Confirm radios and the PAWS pinball machine do not show **Open Crate**, and opening from more than two tiles away is rejected.
 - In multiplayer, open a crate directly from the machine; confirm inventory changes appear on both client and server and the same request cannot be claimed twice.

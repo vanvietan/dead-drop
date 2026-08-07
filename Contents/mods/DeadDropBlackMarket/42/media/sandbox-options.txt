@@ -21,7 +21,7 @@ option DeadDrop.CommonChance
     type = integer,
     min = 0,
     max = 100,
-    default = 60,
+    default = 30,
     page = DeadDrop,
     translation = DeadDrop_CommonChance,
 }
@@ -41,9 +41,19 @@ option DeadDrop.RareChance
     type = integer,
     min = 0,
     max = 100,
-    default = 12,
+    default = 20,
     page = DeadDrop,
     translation = DeadDrop_RareChance,
+}
+
+option DeadDrop.EpicChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 15,
+    page = DeadDrop,
+    translation = DeadDrop_EpicChance,
 }
 
 option DeadDrop.ContrabandChance
@@ -51,7 +61,7 @@ option DeadDrop.ContrabandChance
     type = integer,
     min = 0,
     max = 100,
-    default = 3,
+    default = 10,
     page = DeadDrop,
     translation = DeadDrop_ContrabandChance,
 }

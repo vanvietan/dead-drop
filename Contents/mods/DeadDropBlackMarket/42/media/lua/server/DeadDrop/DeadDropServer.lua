@@ -6,10 +6,11 @@ DeadDropServer = DeadDropServer or {}
 local MODULE = "DeadDrop"
 local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
 local RARITY_OPTIONS = {
-    { name = "Common", option = "CommonChance", default = 60 },
+    { name = "Common", option = "CommonChance", default = 30 },
     { name = "Uncommon", option = "UncommonChance", default = 25 },
-    { name = "Rare", option = "RareChance", default = 12 },
-    { name = "Contraband", option = "ContrabandChance", default = 3 },
+    { name = "Rare", option = "RareChance", default = 20 },
+    { name = "Epic", option = "EpicChance", default = 15 },
+    { name = "Contraband", option = "ContrabandChance", default = 10 },
 }
 local REVEAL_DELAY = 8000
 

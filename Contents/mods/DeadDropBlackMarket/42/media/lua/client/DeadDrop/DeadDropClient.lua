@@ -26,6 +26,7 @@ local rarityColors = {
     Common = { r = 0.62, g = 0.62, b = 0.55 },
     Uncommon = { r = 0.36, g = 0.62, b = 0.38 },
     Rare = { r = 0.30, g = 0.50, b = 0.76 },
+    Epic = { r = 0.62, g = 0.30, b = 0.76 },
     Contraband = { r = 0.70, g = 0.18, b = 0.18 },
 }
 

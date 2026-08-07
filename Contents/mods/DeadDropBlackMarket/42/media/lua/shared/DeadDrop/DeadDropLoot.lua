@@ -1,10 +1,11 @@
 DeadDropLoot = DeadDropLoot or {}
 
 DeadDropLoot.rarities = {
-    { name = "Common", weight = 60 },
+    { name = "Common", weight = 30 },
     { name = "Uncommon", weight = 25 },
-    { name = "Rare", weight = 12 },
-    { name = "Contraband", weight = 3 },
+    { name = "Rare", weight = 20 },
+    { name = "Epic", weight = 15 },
+    { name = "Contraband", weight = 10 },
 }
 
 DeadDropLoot.bundles = {
@@ -142,6 +143,7 @@ DeadDropLoot.bundles = {
         {
             { fullType = "Base.Pistol2", quantity = 1 },
             { fullType = "Base.Bullets45", quantity = 3 },
+            { fullType = "Base.45Clip", quantity = 2 },
         },
         {
             { fullType = "Base.Shotgun", quantity = 1 },
@@ -158,6 +160,7 @@ DeadDropLoot.bundles = {
         {
             { fullType = "Base.Pistol", quantity = 1 },
             { fullType = "Base.Bullets9mm", quantity = 3 },
+            { fullType = "Base.9mmClip", quantity = 2 },
             { fullType = "Base.HolsterSimple", quantity = 1 },
         },
         {
@@ -173,28 +176,23 @@ DeadDropLoot.bundles = {
             { fullType = "Base.WeldingRods", quantity = 1 },
             { fullType = "Base.BookMetalWelding3", quantity = 1 },
         },
+        {
+            { fullType = "Base.Pistol3", quantity = 1 },
+            { fullType = "Base.Bullets44", quantity = 3 },
+            { fullType = "Base.44Clip", quantity = 2 },
+        },
     },
-    Contraband = {
+    Epic = {
         {
             { fullType = "Base.AssaultRifle", quantity = 1 },
             { fullType = "Base.556Bullets", quantity = 4 },
-        },
-        {
-            { fullType = "Base.AssaultRifle2", quantity = 1 },
-            { fullType = "Base.308Bullets", quantity = 4 },
-        },
-        {
-            { fullType = "Base.Katana", quantity = 1 },
-            { fullType = "Base.Bag_ALICEpack_Army", quantity = 1 },
-        },
-        {
-            { fullType = "Base.Machete", quantity = 1 },
-            { fullType = "Base.Vest_BulletArmy", quantity = 1 },
+            { fullType = "Base.556Clip", quantity = 2 },
         },
         {
             { fullType = "Base.HuntingRifle", quantity = 1 },
             { fullType = "Base.308Bullets", quantity = 4 },
             { fullType = "Base.AmmoStrap_Bullets_308", quantity = 1 },
+            { fullType = "Base.x8Scope", quantity = 1 },
         },
         {
             { fullType = "Base.Bag_Military", quantity = 1 },
@@ -207,9 +205,40 @@ DeadDropLoot.bundles = {
             { fullType = "Base.Disinfectant", quantity = 2 },
         },
         {
+            { fullType = "Base.Sledgehammer", quantity = 1 },
+        },
+        {
+            { fullType = "Base.Bag_HydrationBackpack_Camo", quantity = 1 },
+        },
+        {
+            { fullType = "Base.Vest_BulletSWAT", quantity = 1 },
+            { fullType = "Base.Bag_SWAT", quantity = 1 },
+        },
+    },
+    Contraband = {
+        {
+            { fullType = "Base.Machete", quantity = 1 },
+            { fullType = "Base.Vest_BulletArmy", quantity = 1 },
+        },
+        {
+            { fullType = "Base.AssaultRifle2", quantity = 1 },
+            { fullType = "Base.308Bullets", quantity = 4 },
+            { fullType = "Base.M14Clip", quantity = 2 },
+        },
+        {
+            { fullType = "Base.Katana", quantity = 1 },
+            { fullType = "Base.Bag_ALICEpack_Army", quantity = 1 },
+        },
+        {
             { fullType = "Base.SpiffoBig", quantity = 1 },
             { fullType = "Base.MilitaryMedal", quantity = 1 },
             { fullType = "Base.BookFancy_Occult", quantity = 1 },
+        },
+        {
+            { fullType = "Base.PipeBomb", quantity = 2 },
+        },
+        {
+            { fullType = "Base.Sword", quantity = 1 },
         },
     },
 }
