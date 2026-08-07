@@ -20,7 +20,7 @@ For a manually configured multiplayer server, add `DeadDropBlackMarket` to `Mods
 3. Stand within two tiles of the placed machine. It does not need power.
 4. Right-click the machine and choose **Open Crate**.
 
-The server removes one cash item and rolls the rarity. A Project Zomboid-style item reel runs for seven seconds, locks onto the server-selected reward for one second, then grants the loot directly. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
+The server removes one cash item, rolls the rarity, and selects one item type from that rarity's pool. A Project Zomboid-style item reel runs for seven seconds, locks onto the server-selected reward for one second, then grants its configured quantity directly. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
 
 ## Sandbox Options
 
@@ -31,7 +31,7 @@ The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mo
 - Try opening with no cash and with each accepted cash type, including cash inside a nested bag.
 - Confirm a Gatcha Machine can spawn in convenience-store and gas-station counters, be picked up, placed, picked up again, and moved to a base.
 - Confirm all four placed orientations show the **Open Crate** action.
-- With **Free Orders** enabled, set each rarity chance to 100 in turn (and the others to 0) and confirm all five tiers can be awarded with the expected color and loot.
+- With **Free Orders** enabled, set each rarity chance to 100 in turn (and the others to 0) and confirm all five tiers award exactly one item type with the expected color and quantity.
 - Confirm a vanilla Dr. Oids cabinet never shows the action, while a Gatcha Machine keeps its name, icon, and action after repeated pickup/place cycles.
 - Confirm radios and the PAWS pinball machine do not show **Open Crate**, and opening from more than two tiles away is rejected.
 - In multiplayer, open a crate directly from the machine; confirm inventory changes appear on both client and server and the same request cannot be claimed twice.
@@ -39,4 +39,4 @@ The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mo
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.
 - The shared loot file asserts at load time that the default rarity weights total 100 and every default roll from 1 through 100 maps to a valid rarity.
 
-Edit loot bundles in `42/media/lua/shared/DeadDrop/DeadDropLoot.lua`; configure rarity chances from the sandbox options.
+Edit single-item pools in `42/media/lua/shared/DeadDrop/DeadDropLoot.lua`; configure rarity chances from the sandbox options.

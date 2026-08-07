@@ -6,8 +6,8 @@ local GATCHA_MACHINE = "DeadDrop.GatchaMachine"
 -- keep the machine uncommon while still allowing it to appear naturally in
 -- places that sell lottery tickets.
 local targets = {
-    { name = "StoreCounterBags", weight = 0.5 },
-    { name = "GasStoreSpecial", weight = 0.5 },
+    { name = "StoreCounterBags", weight = 5 },
+    { name = "GasStoreSpecial", weight = 5 },
 }
 
 local function addUnique(items, fullType, weight)

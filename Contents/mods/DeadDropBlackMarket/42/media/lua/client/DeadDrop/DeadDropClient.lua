@@ -38,7 +38,15 @@ local rarityColors = {
     Contraband = { r = 0.70, g = 0.18, b = 0.18 },
 }
 
-local scanningColor = { r = 0.58, g = 0.57, b = 0.52 }
+local scanningColor = { r = 0.34, g = 0.78, b = 0.39 }
+local uiColors = {
+    plastic = { r = 0.82, g = 0.81, b = 0.75 },
+    trim = { r = 0.34, g = 0.37, b = 0.38 },
+    display = { r = 0.025, g = 0.055, b = 0.04 },
+    slot = { r = 0.16, g = 0.18, b = 0.17 },
+    red = { r = 0.72, g = 0.10, b = 0.07 },
+    blue = { r = 0.06, g = 0.28, b = 0.68 },
+}
 
 DeadDropOpenPanel = ISPanel:derive("DeadDropOpenPanel")
 
@@ -63,14 +71,13 @@ function DeadDropOpenPanel:new(rarity, lootText, requestId)
             })
         end
     end
+    assert(#panel.loot <= 4, "[DeadDrop] roulette panel supports at most four loot entries")
     panel.reel = {}
     local candidates = {}
-    for _, bundles in pairs(DeadDropLoot.bundles) do
-        for _, bundle in ipairs(bundles) do
-            for _, entry in ipairs(bundle) do
-                local scriptItem = ScriptManager.instance:FindItem(entry.fullType)
-                if scriptItem then table.insert(candidates, scriptItem:getNormalTexture()) end
-            end
+    for _, pool in pairs(DeadDropLoot.itemPools) do
+        for _, entry in ipairs(pool) do
+            local scriptItem = ScriptManager.instance:FindItem(entry.fullType)
+            if scriptItem then table.insert(candidates, scriptItem:getNormalTexture()) end
         end
     end
     for _ = 1, REEL_ITEM_COUNT do
@@ -80,8 +87,10 @@ function DeadDropOpenPanel:new(rarity, lootText, requestId)
     panel.startedAt = getTimestampMs()
     panel.lastSoundStep = -1
     panel.revealed = false
-    panel.backgroundColor = { r = 0.055, g = 0.06, b = 0.055, a = 0.94 }
-    panel.borderColor = { r = 0.40, g = 0.39, b = 0.34, a = 1 }
+    panel.backgroundColor = { r = uiColors.plastic.r, g = uiColors.plastic.g,
+        b = uiColors.plastic.b, a = 0.98 }
+    panel.borderColor = { r = uiColors.trim.r, g = uiColors.trim.g,
+        b = uiColors.trim.b, a = 1 }
     panel:setWantKeyEvents(true)
     return panel
 end
@@ -92,6 +101,11 @@ function DeadDropOpenPanel:initialise()
         "CLOSE", self, DeadDropOpenPanel.destroy)
     self.closeButton:initialise()
     self.closeButton:instantiate()
+    self.closeButton.backgroundColor = { r = uiColors.blue.r, g = uiColors.blue.g,
+        b = uiColors.blue.b, a = 1 }
+    self.closeButton.backgroundColorMouseOver = { r = 0.10, g = 0.42, b = 0.88, a = 1 }
+    self.closeButton.borderColor = { r = uiColors.trim.r, g = uiColors.trim.g,
+        b = uiColors.trim.b, a = 1 }
     self.closeButton:setVisible(false)
     self:addChild(self.closeButton)
 end
@@ -119,7 +133,9 @@ end
 function DeadDropOpenPanel:reveal()
     if self.revealed then return end
     self.revealed = true
-    getSoundManager():playUISound("UIAchievement")
+    if self.rarity == "Epic" or self.rarity == "Contraband" then
+        getSoundManager():playUISound("UIAchievement")
+    end
     self.closeButton:setVisible(true)
 end
 
@@ -128,11 +144,19 @@ function DeadDropOpenPanel:prerender()
     local elapsed = getTimestampMs() - self.startedAt
     -- Do not expose the result through the accent color before the reveal.
     local color = self.revealed and self.color or scanningColor
-    local title = elapsed < REEL_DURATION and "SCANNING SUPPLY CHANNEL..."
-        or (not self.revealed and "SIGNAL LOCKED" or string.upper(self.rarity) .. " CACHE")
+    local title = elapsed < REEL_DURATION and "CAPSULE SELECTOR // CYCLING"
+        or (not self.revealed and "CAPSULE SELECTOR // LOCKED"
+            or string.upper(self.rarity) .. " CACHE DISPENSED")
 
-    self:drawRect(16, 16, self.width - 32, 3, 0.9, color.r, color.g, color.b)
-    self:drawTextCentre(title, self.width / 2, 30, 0.86, 0.85, 0.77, 1, UIFont.Medium)
+    self:drawRect(18, 16, self.width - 36, 46, 1,
+        uiColors.display.r, uiColors.display.g, uiColors.display.b)
+    self:drawRectBorder(18, 16, self.width - 36, 46, 1,
+        uiColors.trim.r, uiColors.trim.g, uiColors.trim.b)
+    self:drawRect(26, 33, 9, 9, 1, uiColors.red.r, uiColors.red.g, uiColors.red.b)
+    self:drawRect(40, 33, 9, 9, 1, uiColors.blue.r, uiColors.blue.g, uiColors.blue.b)
+    self:drawRect(58, 54, self.width - 84, 2, 1, color.r, color.g, color.b)
+    self:drawTextCentre(title, self.width / 2 + 12, 29,
+        color.r, color.g, color.b, 1, UIFont.Medium)
 
     if not self.revealed then
         local reelLeft, reelRight, slotWidth = 30, self.width - 30, 88
@@ -143,7 +167,9 @@ function DeadDropOpenPanel:prerender()
 
         local reelTop, reelHeight = 68, 92
         self:drawRect(reelLeft, reelTop, reelRight - reelLeft, reelHeight,
-            0.72, 0.025, 0.027, 0.025)
+            1, uiColors.display.r, uiColors.display.g, uiColors.display.b)
+        self:drawRectBorder(reelLeft, reelTop, reelRight - reelLeft, reelHeight,
+            1, uiColors.trim.r, uiColors.trim.g, uiColors.trim.b)
 
         -- Keep partially-visible slots inside the reel viewport. The extra
         -- 44px in the visibility check makes slots enter smoothly, but without
@@ -152,27 +178,40 @@ function DeadDropOpenPanel:prerender()
         for index, texture in ipairs(self.reel) do
             local x = reelLeft + (index - 1) * slotWidth - offset
             if x > reelLeft - 44 and x < reelRight + 44 then
-                self:drawRect(x - 36, 74, 72, 80, 0.84, 0.10, 0.105, 0.095)
+                self:drawRect(x - 36, 74, 72, 80, 1,
+                    uiColors.slot.r, uiColors.slot.g, uiColors.slot.b)
+                self:drawRectBorder(x - 36, 74, 72, 80, 1,
+                    uiColors.trim.r, uiColors.trim.g, uiColors.trim.b)
                 if texture then
                     self:drawTextureScaledAspect(texture, x - 25, 87, 50, 50, 1, 1, 1, 1)
                 end
             end
         end
         self:clearStencilRect()
-        self:drawRect(self.width / 2 - 38, 68, 76, 3, 1, color.r, color.g, color.b)
-        self:drawRect(self.width / 2 - 38, 157, 76, 3, 1, color.r, color.g, color.b)
-        local status = elapsed < REEL_DURATION and "SIGNAL LOCK " .. math.floor(progress * 100) .. "%"
-            or "TARGET ACQUIRED"
+        self:drawRect(self.width / 2 - 38, 68, 76, 3, 1,
+            uiColors.red.r, uiColors.red.g, uiColors.red.b)
+        self:drawRect(self.width / 2 - 38, 157, 76, 3, 1,
+            uiColors.blue.r, uiColors.blue.g, uiColors.blue.b)
+        self:drawRect(128, 169, self.width - 256, 27, 1,
+            uiColors.display.r, uiColors.display.g, uiColors.display.b)
+        local status = elapsed < REEL_DURATION and "SELECTING " .. math.floor(progress * 100) .. "%"
+            or "SELECTION READY"
         self:drawTextCentre(status, self.width / 2, 176,
-            0.55, 0.55, 0.50, 1, UIFont.Small)
+            scanningColor.r, scanningColor.g, scanningColor.b, 1, UIFont.Small)
     elseif self.revealed then
-        self:drawTextCentre("CONTENTS", self.width / 2, 88, color.r, color.g, color.b, 1, UIFont.Small)
+        self:drawRect(30, 72, self.width - 60, 188, 1,
+            uiColors.display.r, uiColors.display.g, uiColors.display.b)
+        self:drawRectBorder(30, 72, self.width - 60, 188, 1,
+            uiColors.trim.r, uiColors.trim.g, uiColors.trim.b)
+        self:drawTextCentre("DISPENSED CONTENTS", self.width / 2, 86,
+            color.r, color.g, color.b, 1, UIFont.Small)
         for index, item in ipairs(self.loot) do
             if item.texture then
-                self:drawTextureScaledAspect(item.texture, 116, 112 + (index - 1) * 48, 36, 36, 1, 1, 1, 1)
+                self:drawTextureScaledAspect(item.texture, 118, 108 + (index - 1) * 40,
+                    32, 32, 1, 1, 1, 1)
             end
-            self:drawText(item.name .. " x" .. item.quantity, 166, 121 + (index - 1) * 48,
-                0.78, 0.77, 0.69, 1, UIFont.Small)
+            self:drawText(item.name .. " x" .. item.quantity, 166, 116 + (index - 1) * 40,
+                0.86, 0.85, 0.78, 1, UIFont.Small)
         end
     end
 end

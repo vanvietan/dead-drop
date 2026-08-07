@@ -18,7 +18,7 @@ DeadDropServer.pendingByPlayer = DeadDropServer.pendingByPlayer or {}
 DeadDropServer.nextRequestId = DeadDropServer.nextRequestId or 0
 
 for _, rarity in ipairs(RARITY_OPTIONS) do
-    assert(DeadDropLoot.bundles[rarity.name], "[DeadDrop] invalid rarity " .. rarity.name)
+    assert(DeadDropLoot.itemPools[rarity.name], "[DeadDrop] invalid rarity " .. rarity.name)
 end
 
 local function settings()
@@ -78,25 +78,19 @@ local function machineNear(player, args)
     return machine
 end
 
-local function prepareRewards(bundle)
+local function prepareReward(entry)
     local rewards = {}
-    local loot = {}
-    if not bundle then return nil end
-
-    for _, entry in ipairs(bundle) do
-        if not entry.fullType or type(entry.quantity) ~= "number" or entry.quantity < 1
-                or entry.quantity ~= math.floor(entry.quantity)
-                or not ScriptManager.instance:FindItem(entry.fullType) then
-            return nil
-        end
-        for _ = 1, entry.quantity do
-            local item = instanceItem(entry.fullType)
-            if not item then return nil end
-            table.insert(rewards, item)
-        end
-        table.insert(loot, entry.fullType .. ":" .. entry.quantity)
+    if not entry or not entry.fullType or type(entry.quantity) ~= "number"
+            or entry.quantity < 1 or entry.quantity ~= math.floor(entry.quantity)
+            or not ScriptManager.instance:FindItem(entry.fullType) then
+        return nil
     end
-    return rewards, table.concat(loot, "|")
+    for _ = 1, entry.quantity do
+        local item = instanceItem(entry.fullType)
+        if not item then return nil end
+        table.insert(rewards, item)
+    end
+    return rewards, entry.fullType .. ":" .. entry.quantity
 end
 
 local function configuredRarities(options)
@@ -145,7 +139,7 @@ function DeadDropServer.handleOpen(player, args)
 
     local rarities, totalWeight = configuredRarities(settings())
     local rarity = DeadDropLoot.selectRarity(ZombRand(totalWeight) + 1, rarities)
-    local rewards, loot = prepareRewards(DeadDropLoot.randomBundle(rarity))
+    local rewards, loot = prepareReward(DeadDropLoot.randomItem(rarity))
     if not rewards then
         return result("open", "config_error")
     end
