@@ -1,6 +1,6 @@
 # Dead Drop: Black Market Supply Crates
 
-MVP mod for Project Zomboid Build 42.19. It uses vanilla in-game items only; there are no real-money transactions.
+MVP mod for Project Zomboid Build 42.20. It uses vanilla in-game items only; there are no real-money transactions.
 
 ## Install
 
