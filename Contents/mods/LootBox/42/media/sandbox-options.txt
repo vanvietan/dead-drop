@@ -1,0 +1,85 @@
+VERSION = 1,
+
+option LootBox.Enabled
+{
+    type = boolean,
+    default = true,
+    page = LootBox,
+    translation = LootBox_Enabled,
+}
+
+option LootBox.FreeOrders
+{
+    type = boolean,
+    default = false,
+    page = LootBox,
+    translation = LootBox_FreeOrders,
+}
+
+option LootBox.SpinCost
+{
+    type = integer,
+    min = 1,
+    max = 100,
+    default = 10,
+    page = LootBox,
+    translation = LootBox_SpinCost,
+}
+
+option LootBox.CommonChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 30,
+    page = LootBox,
+    translation = LootBox_CommonChance,
+}
+
+option LootBox.UncommonChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 25,
+    page = LootBox,
+    translation = LootBox_UncommonChance,
+}
+
+option LootBox.RareChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 20,
+    page = LootBox,
+    translation = LootBox_RareChance,
+}
+
+option LootBox.EpicChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 15,
+    page = LootBox,
+    translation = LootBox_EpicChance,
+}
+
+option LootBox.ContrabandChance
+{
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 10,
+    page = LootBox,
+    translation = LootBox_ContrabandChance,
+}
+
+option LootBox.DebugLogging
+{
+    type = boolean,
+    default = false,
+    page = LootBox,
+    translation = LootBox_DebugLogging,
+}

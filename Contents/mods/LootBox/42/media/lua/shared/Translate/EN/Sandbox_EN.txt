@@ -1,0 +1,30 @@
+Sandbox_EN = {
+    Sandbox_LootBox = "LootBox",
+
+    Sandbox_LootBox_Enabled = "Enable Mod",
+    Sandbox_LootBox_Enabled_tooltip = "Show LootBox actions and allow ordering and opening crates.",
+
+    Sandbox_LootBox_FreeOrders = "Free Orders (Debug)",
+    Sandbox_LootBox_FreeOrders_tooltip = "Orders do not require or consume Money, Gold Coins, or Silver Coins. Intended for testing.",
+
+    Sandbox_LootBox_SpinCost = "Cost Per Spin ($)",
+    Sandbox_LootBox_SpinCost_tooltip = "Number of Money, Gold Coin, or Silver Coin items consumed per spin. Each item counts as $1.",
+
+    Sandbox_LootBox_CommonChance = "Common Chance (%)",
+    Sandbox_LootBox_CommonChance_tooltip = "Relative chance for a Common crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_UncommonChance = "Uncommon Chance (%)",
+    Sandbox_LootBox_UncommonChance_tooltip = "Relative chance for an Uncommon crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_RareChance = "Rare Chance (%)",
+    Sandbox_LootBox_RareChance_tooltip = "Relative chance for a Rare crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_EpicChance = "Epic Chance (%)",
+    Sandbox_LootBox_EpicChance_tooltip = "Relative chance for an Epic crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_ContrabandChance = "Contraband Chance (%)",
+    Sandbox_LootBox_ContrabandChance_tooltip = "Relative chance for a Contraband crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_DebugLogging = "Debug Logging",
+    Sandbox_LootBox_DebugLogging_tooltip = "Write successful orders and crate results to console.txt and the server console.",
+}

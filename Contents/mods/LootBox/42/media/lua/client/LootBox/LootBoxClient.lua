@@ -2,16 +2,19 @@ require "ISUI/ISWorldObjectContextMenu"
 require "ISUI/ISToolTip"
 require "ISUI/ISPanel"
 require "ISUI/ISButton"
-require "DeadDrop/DeadDropLoot"
-require "DeadDrop/DeadDropMoveable"
+require "LootBox/LootBoxLoot"
+require "LootBox/LootBoxMoveable"
 
-DeadDropClient = DeadDropClient or {}
+LootBoxClient = LootBoxClient or {}
 
-local MODULE = "DeadDrop"
+local MODULE = "LootBox"
 local REEL_DURATION = 7000
 local LOCK_DURATION = 1000
 local REVEAL_TIME = REEL_DURATION + LOCK_DURATION
 local REEL_ITEM_COUNT = 32
+local DEFAULT_SPIN_COST = 10
+local MIN_SPIN_COST = 1
+local MAX_SPIN_COST = 100
 
 local function reelSoundStep(elapsed)
     local progress = elapsed / REEL_DURATION
@@ -19,15 +22,14 @@ local function reelSoundStep(elapsed)
 end
 
 assert(reelSoundStep(0) == 0 and reelSoundStep(REEL_DURATION) == REEL_ITEM_COUNT,
-    "[DeadDrop] invalid reel sound timing")
+    "[LootBox] invalid reel sound timing")
 
 local messages = {
-    no_money = "You need $1 in cash.",
     invalid_machine = "That Gatcha Machine is no longer available.",
     too_far = "Move closer to the Gatcha Machine.",
     invalid_request = "That opening request is no longer available.",
-    config_error = "Dead Drop loot configuration is invalid.",
-    disabled = "Dead Drop is disabled in Sandbox Options.",
+    config_error = "LootBox loot configuration is invalid.",
+    disabled = "LootBox is disabled in Sandbox Options.",
 }
 
 local rarityColors = {
@@ -48,9 +50,9 @@ local uiColors = {
     blue = { r = 0.06, g = 0.28, b = 0.68 },
 }
 
-DeadDropOpenPanel = ISPanel:derive("DeadDropOpenPanel")
+LootBoxOpenPanel = ISPanel:derive("LootBoxOpenPanel")
 
-function DeadDropOpenPanel:new(rarity, lootText, requestId)
+function LootBoxOpenPanel:new(rarity, lootText, requestId)
     local width, height = 460, 330
     local panel = ISPanel:new((getCore():getScreenWidth() - width) / 2,
         (getCore():getScreenHeight() - height) / 2, width, height)
@@ -71,10 +73,10 @@ function DeadDropOpenPanel:new(rarity, lootText, requestId)
             })
         end
     end
-    assert(#panel.loot <= 4, "[DeadDrop] roulette panel supports at most four loot entries")
+    assert(#panel.loot <= 4, "[LootBox] roulette panel supports at most four loot entries")
     panel.reel = {}
     local candidates = {}
-    for _, pool in pairs(DeadDropLoot.itemPools) do
+    for _, pool in pairs(LootBoxLoot.itemPools) do
         for _, entry in ipairs(pool) do
             local scriptItem = ScriptManager.instance:FindItem(entry.fullType)
             if scriptItem then table.insert(candidates, scriptItem:getNormalTexture()) end
@@ -95,10 +97,10 @@ function DeadDropOpenPanel:new(rarity, lootText, requestId)
     return panel
 end
 
-function DeadDropOpenPanel:initialise()
+function LootBoxOpenPanel:initialise()
     ISPanel.initialise(self)
     self.closeButton = ISButton:new(self.width / 2 - 55, self.height - 42, 110, 28,
-        "CLOSE", self, DeadDropOpenPanel.destroy)
+        "CLOSE", self, LootBoxOpenPanel.destroy)
     self.closeButton:initialise()
     self.closeButton:instantiate()
     self.closeButton.backgroundColor = { r = uiColors.blue.r, g = uiColors.blue.g,
@@ -110,7 +112,7 @@ function DeadDropOpenPanel:initialise()
     self:addChild(self.closeButton)
 end
 
-function DeadDropOpenPanel:update()
+function LootBoxOpenPanel:update()
     ISPanel.update(self)
     self:setX((getCore():getScreenWidth() - self.width) / 2)
     self:setY((getCore():getScreenHeight() - self.height) / 2)
@@ -126,11 +128,11 @@ function DeadDropOpenPanel:update()
     if not self.revealed and elapsed >= REVEAL_TIME
             and (not self.nextClaimAt or now >= self.nextClaimAt) then
         self.nextClaimAt = now + 500
-        DeadDropClient.claim(self.requestId)
+        LootBoxClient.claim(self.requestId)
     end
 end
 
-function DeadDropOpenPanel:reveal()
+function LootBoxOpenPanel:reveal()
     if self.revealed then return end
     self.revealed = true
     if self.rarity == "Epic" or self.rarity == "Contraband" then
@@ -139,7 +141,7 @@ function DeadDropOpenPanel:reveal()
     self.closeButton:setVisible(true)
 end
 
-function DeadDropOpenPanel:prerender()
+function LootBoxOpenPanel:prerender()
     ISPanel.prerender(self)
     local elapsed = getTimestampMs() - self.startedAt
     -- Do not expose the result through the accent color before the reveal.
@@ -216,26 +218,26 @@ function DeadDropOpenPanel:prerender()
     end
 end
 
-function DeadDropOpenPanel:onKeyPress(key)
+function LootBoxOpenPanel:onKeyPress(key)
     if self.revealed and key == Keyboard.KEY_ESCAPE then self:destroy() end
 end
 
-function DeadDropOpenPanel:destroy()
+function LootBoxOpenPanel:destroy()
     self:removeFromUIManager()
-    if DeadDropClient.openPanel == self then DeadDropClient.openPanel = nil end
+    if LootBoxClient.openPanel == self then LootBoxClient.openPanel = nil end
 end
 
-function DeadDropOpenPanel.show(rarity, loot, requestId)
-    if DeadDropClient.openPanel then DeadDropClient.openPanel:destroy() end
-    local panel = DeadDropOpenPanel:new(rarity, loot, requestId)
+function LootBoxOpenPanel.show(rarity, loot, requestId)
+    if LootBoxClient.openPanel then LootBoxClient.openPanel:destroy() end
+    local panel = LootBoxOpenPanel:new(rarity, loot, requestId)
     panel:initialise()
     panel:addToUIManager()
     panel:setAlwaysOnTop(true)
-    DeadDropClient.openPanel = panel
+    LootBoxClient.openPanel = panel
 end
 
 local function settings()
-    return SandboxVars and SandboxVars.DeadDrop or nil
+    return SandboxVars and SandboxVars.LootBox or nil
 end
 
 local function enabled()
@@ -248,8 +250,17 @@ local function freeOrders()
     return options and options.FreeOrders == true
 end
 
+local function spinCost()
+    local options = settings()
+    local cost = tonumber(options and options.SpinCost)
+    if not cost or cost ~= math.floor(cost) or cost < MIN_SPIN_COST or cost > MAX_SPIN_COST then
+        return DEFAULT_SPIN_COST
+    end
+    return cost
+end
+
 local function isGatchaMachine(object)
-    return DeadDropMoveable.isMachineObject(object)
+    return LootBoxMoveable.isMachineObject(object)
 end
 
 local function addTooltip(option, description)
@@ -259,22 +270,24 @@ local function addTooltip(option, description)
     option.toolTip.description = description
 end
 
-function DeadDropClient.showResult(response)
+function LootBoxClient.showResult(response)
     local player = getPlayer()
     if not player or not response then return end
 
     if response.status == "ok" then
         if response.action == "open" then
-            DeadDropOpenPanel.show(response.rarity, response.loot, response.requestId)
+            LootBoxOpenPanel.show(response.rarity, response.loot, response.requestId)
         elseif response.action == "claim" then
-            if DeadDropClient.openPanel then DeadDropClient.openPanel:reveal() end
+            if LootBoxClient.openPanel then LootBoxClient.openPanel:reveal() end
         end
     else
         if response.action == "claim" and response.status == "pending" then return end
-        if response.action == "claim" and DeadDropClient.openPanel then
-            DeadDropClient.openPanel:destroy()
+        if response.action == "claim" and LootBoxClient.openPanel then
+            LootBoxClient.openPanel:destroy()
         end
-        HaloTextHelper.addBadText(player, messages[response.status] or "Dead Drop request failed.")
+        local message = response.status == "no_money" and "You need $" .. spinCost() .. " in cash."
+            or messages[response.status] or "LootBox request failed."
+        HaloTextHelper.addBadText(player, message)
     end
 end
 
@@ -286,14 +299,14 @@ local function dispatch(player, command, args)
 
     local response
     if command == "open" then
-        response = DeadDropServer.handleOpen(player, args)
+        response = LootBoxServer.handleOpen(player, args)
     else
-        response = DeadDropServer.handleClaim(player, args)
+        response = LootBoxServer.handleClaim(player, args)
     end
-    DeadDropClient.showResult(response)
+    LootBoxClient.showResult(response)
 end
 
-function DeadDropClient.claim(requestId)
+function LootBoxClient.claim(requestId)
     local player = getPlayer()
     if player then dispatch(player, "claim", { requestId = requestId }) end
 end
@@ -324,12 +337,13 @@ local function onWorldMenu(playerNum, context, worldObjects, test)
 
     local player = getSpecificPlayer(playerNum)
     local option = context:addOption("Open Crate", player, openCrate, machine)
-    addTooltip(option, freeOrders() and "Cost: Free (Sandbox debug)." or "Cost: $1.")
+    addTooltip(option, freeOrders() and "Cost: Free (Sandbox debug)."
+        or "Cost: $" .. spinCost() .. ".")
 end
 
 local function onServerCommand(module, command, args)
     if module == MODULE and command == "result" then
-        DeadDropClient.showResult(args)
+        LootBoxClient.showResult(args)
     end
 end
 

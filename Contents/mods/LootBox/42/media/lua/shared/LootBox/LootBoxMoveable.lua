@@ -1,12 +1,12 @@
 require "Moveables/ISMoveableSpriteProps"
 
-DeadDropMoveable = DeadDropMoveable or {}
+LootBoxMoveable = LootBoxMoveable or {}
 
-local ITEM_TYPE = "DeadDrop.GatchaMachine"
-local MARKER = "DeadDropGatchaMachine"
+local ITEM_TYPE = "LootBox.GatchaMachine"
+local MARKER = "LootBoxGatchaMachine"
 local MACHINE_NAME = "Gatcha Machine"
 local MACHINE_TEXTURE = "Item_GatchaMachine"
-local MACHINE_GROUP = "Dead Drop Gatcha Machine"
+local MACHINE_GROUP = "LootBox Gatcha Machine"
 local MACHINE_SPRITES = {
     { name = "dead_drop_gatcha_01_0", facing = "W" },
     { name = "dead_drop_gatcha_01_1", facing = "N" },
@@ -69,12 +69,12 @@ end
 
 Events.LoadGridsquare.Add(migrateLegacySquare)
 
-function DeadDropMoveable.isMachineObject(object)
+function LootBoxMoveable.isMachineObject(object)
     local name = migrateLegacyObject(object)
     return name and MACHINE_SPRITE_NAMES[name] == true and hasMarker(object)
 end
 
-function DeadDropMoveable.isMachineItem(item)
+function LootBoxMoveable.isMachineItem(item)
     if not item then return false end
     return (item.getFullType and item:getFullType() == ITEM_TYPE) or hasMarker(item)
 end
@@ -123,9 +123,9 @@ end
 
 -- B42 performs movable conversion on the authoritative side. Preserve a
 -- private marker across both conversions so sharing a visual sprite with the
--- vanilla Dr. Oids cabinet never makes the vanilla cabinet a Dead Drop.
-if ISMoveableSpriteProps and not DeadDropMoveable.hooksInstalled then
-    DeadDropMoveable.hooksInstalled = true
+-- vanilla Dr. Oids cabinet never makes the vanilla cabinet a LootBox.
+if ISMoveableSpriteProps and not LootBoxMoveable.hooksInstalled then
+    LootBoxMoveable.hooksInstalled = true
 
     local originalPlace = ISMoveableSpriteProps.placeMoveableInternal
     if originalPlace then
@@ -133,7 +133,7 @@ if ISMoveableSpriteProps and not DeadDropMoveable.hooksInstalled then
             local args = { ... }
             local isMachine = false
             for _, value in ipairs(args) do
-                if DeadDropMoveable.isMachineItem(value) then
+                if LootBoxMoveable.isMachineItem(value) then
                     isMachine = true
                     break
                 end
@@ -151,7 +151,7 @@ if ISMoveableSpriteProps and not DeadDropMoveable.hooksInstalled then
             local args = { ... }
             local isMachine = false
             for _, value in ipairs(args) do
-                if DeadDropMoveable.isMachineObject(value) then
+                if LootBoxMoveable.isMachineObject(value) then
                     isMachine = true
                     break
                 end

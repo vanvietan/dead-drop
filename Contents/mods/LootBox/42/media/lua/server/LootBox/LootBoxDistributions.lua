@@ -1,6 +1,6 @@
 require "Items/ProceduralDistributions"
 
-local GATCHA_MACHINE = "DeadDrop.GatchaMachine"
+local GATCHA_MACHINE = "LootBox.GatchaMachine"
 
 -- Convenience-store and gas-station counter distributions. The low weights
 -- keep the machine uncommon while still allowing it to appear naturally in

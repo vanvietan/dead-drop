@@ -1,6 +1,9 @@
 version=1
-id=0
-title=Dead Drop: Black Market Supply Crates
-description=Find and relocate a Gatcha Machine to open randomized black market supply caches using in-game cash.
+title=LootBox
+description=Find and relocate a Gatcha Machine, bring it home, and open randomized loot boxes using in-game cash.
+description=
+description=Pick up and place the machine anywhere. Right-click it to open a crate and receive a server-selected reward after the item reel finishes.
+description=
+description=Supports Project Zomboid Build 42, multiplayer server validation, configurable rarity chances, free debug orders, and vanilla in-game items only.
 tags=Build 42
 visibility=public

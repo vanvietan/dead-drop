@@ -1,10 +1,13 @@
-require "DeadDrop/DeadDropLoot"
-require "DeadDrop/DeadDropMoveable"
+require "LootBox/LootBoxLoot"
+require "LootBox/LootBoxMoveable"
 
-DeadDropServer = DeadDropServer or {}
+LootBoxServer = LootBoxServer or {}
 
-local MODULE = "DeadDrop"
+local MODULE = "LootBox"
 local CASH = { "Base.Money", "Base.GoldCoin", "Base.SilverCoin" }
+local DEFAULT_SPIN_COST = 10
+local MIN_SPIN_COST = 1
+local MAX_SPIN_COST = 100
 local RARITY_OPTIONS = {
     { name = "Common", option = "CommonChance", default = 30 },
     { name = "Uncommon", option = "UncommonChance", default = 25 },
@@ -14,15 +17,15 @@ local RARITY_OPTIONS = {
 }
 local REVEAL_DELAY = 8000
 
-DeadDropServer.pendingByPlayer = DeadDropServer.pendingByPlayer or {}
-DeadDropServer.nextRequestId = DeadDropServer.nextRequestId or 0
+LootBoxServer.pendingByPlayer = LootBoxServer.pendingByPlayer or {}
+LootBoxServer.nextRequestId = LootBoxServer.nextRequestId or 0
 
 for _, rarity in ipairs(RARITY_OPTIONS) do
-    assert(DeadDropLoot.itemPools[rarity.name], "[DeadDrop] invalid rarity " .. rarity.name)
+    assert(LootBoxLoot.itemPools[rarity.name], "[LootBox] invalid rarity " .. rarity.name)
 end
 
 local function settings()
-    return SandboxVars and SandboxVars.DeadDrop or nil
+    return SandboxVars and SandboxVars.LootBox or nil
 end
 
 local function enabled()
@@ -32,24 +35,35 @@ end
 
 local function debugLog(message)
     local options = settings()
-    if options and options.DebugLogging then print("[DeadDrop] " .. message) end
+    if options and options.DebugLogging then print("[LootBox] " .. message) end
 end
 
 local function result(action, status, rarity, loot, requestId)
     return { action = action, status = status, rarity = rarity, loot = loot, requestId = requestId }
 end
 
-local function findFirstItem(inventory, fullTypes)
-    for _, fullType in ipairs(fullTypes) do
+local function spinCost(options)
+    local cost = tonumber(options and options.SpinCost)
+    if not cost or cost ~= math.floor(cost) or cost < MIN_SPIN_COST or cost > MAX_SPIN_COST then
+        return DEFAULT_SPIN_COST
+    end
+    return cost
+end
+
+local function findCash(inventory, amount)
+    local cash = {}
+    for _, fullType in ipairs(CASH) do
         local items = inventory:getAllTypeRecurse(fullType)
-        if not items:isEmpty() then
-            return items:get(0)
+        for index = 0, items:size() - 1 do
+            table.insert(cash, items:get(index))
+            if #cash == amount then return cash end
         end
     end
+    return nil
 end
 
 local function isGatchaMachine(object)
-    return DeadDropMoveable.isMachineObject(object)
+    return LootBoxMoveable.isMachineObject(object)
 end
 
 local function isInteger(value)
@@ -115,7 +129,7 @@ local function configuredRarities(options)
     return rarities, total
 end
 
-function DeadDropServer.handleOpen(player, args)
+function LootBoxServer.handleOpen(player, args)
     if not enabled() then return result("open", "disabled") end
 
     local _, errorStatus = machineNear(player, args or {})
@@ -124,7 +138,7 @@ function DeadDropServer.handleOpen(player, args)
     end
 
     local playerKey = tostring(player:getUsername())
-    local pending = DeadDropServer.pendingByPlayer[playerKey]
+    local pending = LootBoxServer.pendingByPlayer[playerKey]
     if pending then
         return result("open", "ok", pending.rarity, pending.loot, pending.requestId)
     end
@@ -132,28 +146,31 @@ function DeadDropServer.handleOpen(player, args)
     local inventory = player:getInventory()
     local options = settings()
     local freeOrder = options and options.FreeOrders == true
-    local cash = not freeOrder and findFirstItem(inventory, CASH) or nil
+    local cost = spinCost(options)
+    local cash = not freeOrder and findCash(inventory, cost) or nil
     if not freeOrder and not cash then
         return result("open", "no_money")
     end
 
     local rarities, totalWeight = configuredRarities(settings())
-    local rarity = DeadDropLoot.selectRarity(ZombRand(totalWeight) + 1, rarities)
-    local rewards, loot = prepareReward(DeadDropLoot.randomItem(rarity))
+    local rarity = LootBoxLoot.selectRarity(ZombRand(totalWeight) + 1, rarities)
+    local rewards, loot = prepareReward(LootBoxLoot.randomItem(rarity))
     if not rewards then
         return result("open", "config_error")
     end
 
     if cash then
-        local cashContainer = cash:getContainer()
-        cashContainer:Remove(cash)
-        sendRemoveItemFromContainer(cashContainer, cash)
+        for _, cashItem in ipairs(cash) do
+            local cashContainer = cashItem:getContainer()
+            cashContainer:Remove(cashItem)
+            sendRemoveItemFromContainer(cashContainer, cashItem)
+        end
     end
 
-    DeadDropServer.nextRequestId = DeadDropServer.nextRequestId + 1
+    LootBoxServer.nextRequestId = LootBoxServer.nextRequestId + 1
     local requestId = playerKey .. ":" .. tostring(getTimestampMs())
-        .. ":" .. tostring(DeadDropServer.nextRequestId)
-    DeadDropServer.pendingByPlayer[playerKey] = {
+        .. ":" .. tostring(LootBoxServer.nextRequestId)
+    LootBoxServer.pendingByPlayer[playerKey] = {
         requestId = requestId,
         rarity = rarity,
         rewards = rewards,
@@ -161,14 +178,15 @@ function DeadDropServer.handleOpen(player, args)
         readyAt = getTimestampMs() + REVEAL_DELAY,
     }
     debugLog("open player=" .. playerKey .. " free=" .. tostring(freeOrder)
+        .. " cost=" .. tostring(freeOrder and 0 or cost)
         .. " rarity=" .. rarity .. " loot=" .. loot)
     return result("open", "ok", rarity, loot, requestId)
 end
 
-function DeadDropServer.handleClaim(player, args)
+function LootBoxServer.handleClaim(player, args)
     local requestId = args and tostring(args.requestId or "")
     local playerKey = tostring(player:getUsername())
-    local pending = DeadDropServer.pendingByPlayer[playerKey]
+    local pending = LootBoxServer.pendingByPlayer[playerKey]
     if not pending or pending.requestId ~= requestId then
         return result("claim", "invalid_request")
     end
@@ -177,7 +195,7 @@ function DeadDropServer.handleClaim(player, args)
     end
 
     local inventory = player:getInventory()
-    DeadDropServer.pendingByPlayer[playerKey] = nil
+    LootBoxServer.pendingByPlayer[playerKey] = nil
     for _, item in ipairs(pending.rewards) do
         inventory:AddItem(item)
         sendAddItemToContainer(inventory, item)
@@ -191,9 +209,9 @@ local function onClientCommand(module, command, player, args)
 
     local response
     if command == "open" then
-        response = DeadDropServer.handleOpen(player, args)
+        response = LootBoxServer.handleOpen(player, args)
     elseif command == "claim" then
-        response = DeadDropServer.handleClaim(player, args)
+        response = LootBoxServer.handleClaim(player, args)
     end
     if response then
         sendServerCommand(player, MODULE, "result", response)

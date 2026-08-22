@@ -1,34 +1,35 @@
-# Dead Drop: Black Market Supply Crates
+# LootBox
 
 MVP mod for Project Zomboid Build 42.20. It uses vanilla in-game items only; there are no real-money transactions.
 
 ## Install
 
 1. Copy this project directory to:
-   - Windows: `%UserProfile%\Zomboid\Workshop\DeadDropBlackMarket\`
-   - macOS/Linux: `~/Zomboid/Workshop/DeadDropBlackMarket/`
-2. Confirm that `Contents/mods/DeadDropBlackMarket/common/` and `Contents/mods/DeadDropBlackMarket/42/mod.info` exist.
-3. Start Project Zomboid, open **Mods**, and enable **Dead Drop: Black Market Supply Crates**.
-4. Enable the mod for a new test save. The Mod ID is `DeadDropBlackMarket`.
+   - Windows: `%UserProfile%\Zomboid\Workshop\LootBox\`
+   - macOS/Linux: `~/Zomboid/Workshop/LootBox/`
+2. Confirm that `Contents/mods/LootBox/common/` and `Contents/mods/LootBox/42/mod.info` exist.
+3. Start Project Zomboid, open **Mods**, and enable **LootBox**.
+4. Enable the mod for a new test save. The Mod ID is `LootBox`.
 
-For a manually configured multiplayer server, add `DeadDropBlackMarket` to `Mods=` and install the same files on the server and clients. No `WorkshopItems=` value exists until the mod is published to Steam Workshop.
+For a manually configured multiplayer server, add `LootBox` to `Mods=` and install the same files on the server and clients. No `WorkshopItems=` value exists until the mod is published to Steam Workshop.
 
 ## Use
 
 1. Find a **Gatcha Machine** in a convenience-store or gas-station counter, then place it in the world. It can be picked up and moved back to your base.
-2. Carry at least one `Money`, `Gold Coin`, or `Silver Coin`. Each counts as $1; money bundles do not count.
+2. Carry enough `Money`, `Gold Coin`, or `Silver Coin` items to cover the spin cost. The default cost is $10; each item counts as $1, mixed currency types are accepted, and money bundles do not count.
 3. Stand within two tiles of the placed machine. It does not need power.
 4. Right-click the machine and choose **Open Crate**.
 
-The server removes one cash item, rolls the rarity, and selects one item type from that rarity's pool. A Project Zomboid-style item reel runs for seven seconds, locks onto the server-selected reward for one second, then grants its configured quantity directly. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
+The server removes the configured number of cash items, rolls the rarity, and selects one item type from that rarity's pool. A Project Zomboid-style item reel runs for seven seconds, locks onto the server-selected reward for one second, then grants its configured quantity directly. Cash is consumed in this order: Money, Gold Coin, Silver Coin.
 
 ## Sandbox Options
 
-The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mod. **Free Orders** skips cash consumption, and **Debug Logging** writes successful openings and results to the game/server console. Each rarity has its own configurable chance, defaulting to **30% Common, 25% Uncommon, 20% Rare, 15% Epic, and 10% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all five are zero, the defaults are used.
+The **LootBox** sandbox page can enable or disable the mod. **Cost Per Spin ($)** accepts values from 1 to 100 and defaults to **$10**. **Free Orders** skips cash consumption, and **Debug Logging** writes successful openings and results to the game/server console. Each rarity has its own configurable chance, defaulting to **30% Common, 25% Uncommon, 20% Rare, 15% Epic, and 10% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all five are zero, the defaults are used.
 
 ## Test
 
-- Try opening with no cash and with each accepted cash type, including cash inside a nested bag.
+- With the default $10 cost, confirm that 9 cash items are rejected without being consumed and 10 are accepted and consumed. Test each accepted cash type, mixed currency types, and cash inside a nested bag.
+- Change **Cost Per Spin ($)** and confirm the tooltip, insufficient-cash message, and amount consumed use the configured value.
 - Confirm a Gatcha Machine can spawn in convenience-store and gas-station counters, be picked up, placed, picked up again, and moved to a base.
 - Confirm all four placed orientations show the **Open Crate** action.
 - With **Free Orders** enabled, set each rarity chance to 100 in turn (and the others to 0) and confirm all five tiers award exactly one item type with the expected color and quantity.
@@ -39,4 +40,4 @@ The **Dead Drop: Black Market Crates** sandbox page can enable or disable the mo
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.
 - The shared loot file asserts at load time that the default rarity weights total 100 and every default roll from 1 through 100 maps to a valid rarity.
 
-Edit single-item pools in `42/media/lua/shared/DeadDrop/DeadDropLoot.lua`; configure rarity chances from the sandbox options.
+Edit single-item pools in `42/media/lua/shared/LootBox/LootBoxLoot.lua`; configure rarity chances from the sandbox options.

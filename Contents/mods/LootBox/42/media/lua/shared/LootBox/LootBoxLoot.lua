@@ -1,6 +1,6 @@
-DeadDropLoot = DeadDropLoot or {}
+LootBoxLoot = LootBoxLoot or {}
 
-DeadDropLoot.rarities = {
+LootBoxLoot.rarities = {
     { name = "Common", weight = 30 },
     { name = "Uncommon", weight = 25 },
     { name = "Rare", weight = 20 },
@@ -8,7 +8,7 @@ DeadDropLoot.rarities = {
     { name = "Contraband", weight = 10 },
 }
 
-DeadDropLoot.itemPools = {
+LootBoxLoot.itemPools = {
     Common = {
         { fullType = "Base.CannedCorn", quantity = 2 },
         { fullType = "Base.WaterRationCan", quantity = 2 },
@@ -138,9 +138,9 @@ DeadDropLoot.itemPools = {
     },
 }
 
-function DeadDropLoot.selectRarity(roll, rarities)
+function LootBoxLoot.selectRarity(roll, rarities)
     local upper = 0
-    for _, rarity in ipairs(rarities or DeadDropLoot.rarities) do
+    for _, rarity in ipairs(rarities or LootBoxLoot.rarities) do
         upper = upper + rarity.weight
         if roll <= upper then
             return rarity.name
@@ -148,19 +148,19 @@ function DeadDropLoot.selectRarity(roll, rarities)
     end
 end
 
-function DeadDropLoot.randomItem(rarity)
-    local pool = DeadDropLoot.itemPools[rarity]
+function LootBoxLoot.randomItem(rarity)
+    local pool = LootBoxLoot.itemPools[rarity]
     return pool and pool[ZombRand(#pool) + 1]
 end
 
 local total = 0
 local valid = {}
-for _, rarity in ipairs(DeadDropLoot.rarities) do
+for _, rarity in ipairs(LootBoxLoot.rarities) do
     total = total + rarity.weight
-    local pool = DeadDropLoot.itemPools[rarity.name]
+    local pool = LootBoxLoot.itemPools[rarity.name]
     valid[rarity.name] = pool ~= nil and #pool > 0
 end
-assert(total == 100, "[DeadDrop] rarity weights must total 100")
+assert(total == 100, "[LootBox] rarity weights must total 100")
 for roll = 1, 100 do
-    assert(valid[DeadDropLoot.selectRarity(roll)], "[DeadDrop] invalid rarity for roll " .. roll)
+    assert(valid[LootBoxLoot.selectRarity(roll)], "[LootBox] invalid rarity for roll " .. roll)
 end
