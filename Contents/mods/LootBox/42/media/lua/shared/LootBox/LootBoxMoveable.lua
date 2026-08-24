@@ -97,6 +97,21 @@ local function markObject(object)
     if object.transmitModData then object:transmitModData() end
 end
 
+function LootBoxMoveable.spriteForFacing(facing)
+    for _, def in ipairs(MACHINE_SPRITES) do
+        if def.facing == facing then return def.name end
+    end
+    return nil
+end
+
+function LootBoxMoveable.machineName()
+    return MACHINE_NAME
+end
+
+function LootBoxMoveable.markMachineObject(object)
+    markObject(object)
+end
+
 local function restoreCustomItem(item)
     if not item then return nil end
     if item.getFullType and item:getFullType() == ITEM_TYPE then

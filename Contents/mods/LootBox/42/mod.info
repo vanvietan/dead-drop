@@ -1,6 +1,6 @@
 name=LootBox
 id=LootBox
-description=Find and relocate a Gatcha Machine to open randomized loot boxes using in-game cash.
+description=Find a deployed Gatcha Machine at a convenience store or gas station, then use it there or relocate it to open randomized loot boxes with in-game cash.
 poster=poster.png
 versionMin=42.19
 pack=dead_drop_gatcha

@@ -1,8 +1,8 @@
 version=1
 title=LootBox
-description=Find and relocate a Gatcha Machine, bring it home, and open randomized loot boxes using in-game cash.
+description=Find a deployed Gatcha Machine at a convenience store or gas station, use it there or bring it home, and open randomized loot boxes using in-game cash.
 description=
-description=Pick up and place the machine anywhere. Right-click it to open a crate and receive a server-selected reward after the item reel finishes.
+description=Each eligible building has a fixed 35% chance to receive one machine. Pick it up and place it anywhere, or right-click it in the store to open a crate and receive a server-selected reward after the item reel finishes.
 description=
 description=Supports Project Zomboid Build 42, multiplayer server validation, configurable rarity chances, free debug orders, and vanilla in-game items only.
 tags=Build 42
