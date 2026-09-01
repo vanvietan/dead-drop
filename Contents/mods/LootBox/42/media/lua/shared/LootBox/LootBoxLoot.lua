@@ -148,10 +148,51 @@ function LootBoxLoot.selectRarity(roll, rarities)
     end
 end
 
-function LootBoxLoot.randomItem(rarity)
-    local pool = LootBoxLoot.itemPools[rarity]
+local function trim(value)
+    return string.match(value or "", "^%s*(.-)%s*$")
+end
+
+function LootBoxLoot.parseItemPool(raw, itemExists)
+    local pool = {}
+    local invalid = {}
+    for token in string.gmatch((raw or "") .. ";", "(.-);") do
+        token = trim(token)
+        if token ~= "" then
+            local fullType, quantityText = string.match(token, "^([^:%s]+%.[^:%s]+)%s*:%s*(%d+)$")
+            local quantity = tonumber(quantityText)
+            if fullType and quantity and quantity >= 1 and quantity <= 100
+                    and (not itemExists or itemExists(fullType)) then
+                table.insert(pool, { fullType = fullType, quantity = quantity })
+            else
+                table.insert(invalid, token)
+            end
+        end
+    end
+    return pool, invalid
+end
+
+function LootBoxLoot.configuredItemPool(rarity, options)
+    local defaultPool = LootBoxLoot.itemPools[rarity]
+    local raw = options and options[rarity .. "Items"] or ""
+    if trim(raw) == "" then return defaultPool, {} end
+
+    local pool, invalid = LootBoxLoot.parseItemPool(raw, function(fullType)
+        return ScriptManager.instance:FindItem(fullType) ~= nil
+    end)
+    return #pool > 0 and pool or defaultPool, invalid
+end
+
+function LootBoxLoot.randomItem(rarity, pool)
+    pool = pool or LootBoxLoot.itemPools[rarity]
     return pool and pool[ZombRand(#pool) + 1]
 end
+
+local parsed, rejected = LootBoxLoot.parseItemPool(
+    " Base.Axe:1 ; Mod.Item:2;Base.Axe:1;Missing.Item:1;Base.Bad:0;Base.Bad:101;broken ",
+    function(fullType) return fullType ~= "Missing.Item" end)
+assert(#parsed == 3 and parsed[1].fullType == "Base.Axe" and parsed[2].quantity == 2
+        and parsed[3].fullType == "Base.Axe" and #rejected == 4,
+    "[LootBox] custom item pool parser failed")
 
 local total = 0
 local valid = {}

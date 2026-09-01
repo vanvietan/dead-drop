@@ -19,6 +19,7 @@ local REVEAL_DELAY = 8000
 
 LootBoxServer.pendingByPlayer = LootBoxServer.pendingByPlayer or {}
 LootBoxServer.nextRequestId = LootBoxServer.nextRequestId or 0
+local warnedItemConfigs = {}
 
 for _, rarity in ipairs(RARITY_OPTIONS) do
     assert(LootBoxLoot.itemPools[rarity.name], "[LootBox] invalid rarity " .. rarity.name)
@@ -129,6 +130,20 @@ local function configuredRarities(options)
     return rarities, total
 end
 
+local function configuredItemPool(rarity, options)
+    local pool, invalid = LootBoxLoot.configuredItemPool(rarity, options)
+    if #invalid > 0 then
+        local raw = tostring(options and options[rarity .. "Items"] or "")
+        local warningKey = rarity .. ":" .. raw
+        if not warnedItemConfigs[warningKey] then
+            warnedItemConfigs[warningKey] = true
+            print("[LootBox] ignored invalid " .. rarity .. " item entries: "
+                .. table.concat(invalid, ";"))
+        end
+    end
+    return pool
+end
+
 function LootBoxServer.handleOpen(player, args)
     if not enabled() then return result("open", "disabled") end
 
@@ -152,9 +167,10 @@ function LootBoxServer.handleOpen(player, args)
         return result("open", "no_money")
     end
 
-    local rarities, totalWeight = configuredRarities(settings())
+    local rarities, totalWeight = configuredRarities(options)
     local rarity = LootBoxLoot.selectRarity(ZombRand(totalWeight) + 1, rarities)
-    local rewards, loot = prepareReward(LootBoxLoot.randomItem(rarity))
+    local rewards, loot = prepareReward(LootBoxLoot.randomItem(
+        rarity, configuredItemPool(rarity, options)))
     if not rewards then
         return result("open", "config_error")
     end

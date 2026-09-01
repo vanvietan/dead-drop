@@ -5,7 +5,7 @@ require "LootBox/LootBoxMoveable"
 LootBoxDeployment = LootBoxDeployment or {}
 
 local DATA_KEY = "LootBoxDeployment"
-local SPAWN_CHANCE = 35
+local SPAWN_CHANCE = 70
 local ELIGIBLE_ROOMS = {
     conveniencestore = true,
     gasstore = true,
