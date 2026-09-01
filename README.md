@@ -1,6 +1,6 @@
 # LootBox
 
-MVP mod for Project Zomboid Build 42.20. It uses vanilla in-game items only; there are no real-money transactions.
+MVP mod for Project Zomboid Build 42.20. Its default pools use vanilla items, with optional Workshop item support; there are no real-money transactions.
 
 ## Install
 
@@ -15,7 +15,7 @@ For a manually configured multiplayer server, add `LootBox` to `Mods=` and insta
 
 ## Use
 
-1. Find a deployed **Gatcha Machine** in a convenience store or gas station. Each eligible building has a fixed 35% chance to receive one, and no building receives more than one. The machine can be used there or picked up and moved back to your base.
+1. Find a deployed **Gatcha Machine** in a convenience store or gas station. Each eligible building has a fixed 70% chance to receive one, and no building receives more than one. The machine can be used there or picked up and moved back to your base.
 2. Carry enough `Money`, `Gold Coin`, or `Silver Coin` items to cover the spin cost. The default cost is $10; each item counts as $1, mixed currency types are accepted, and money bundles do not count.
 3. Stand within two tiles of the placed machine. It does not need power.
 4. Right-click the machine and choose **Open Crate**.
@@ -28,6 +28,10 @@ The server removes the configured number of cash items, rolls the rarity, and se
 
 The **LootBox** sandbox page can enable or disable the mod. **Cost Per Spin ($)** accepts values from 1 to 100 and defaults to **$10**. **Free Orders** skips cash consumption, and **Debug Logging** writes successful openings and results to the game/server console. Each rarity has its own configurable chance, defaulting to **30% Common, 25% Uncommon, 20% Rare, 15% Epic, and 10% Contraband**. If their total is not 100, the values are treated as relative weights and normalized automatically; if all five are zero, the defaults are used.
 
+Each rarity also has an optional item-pool field. Use `Module.Item:Quantity` entries separated by semicolons, for example `Base.Axe:1;Brita.AR15:2`. A non-empty valid field replaces that rarity's default pool; blank fields keep the defaults. Quantities must be whole numbers from 1 to 100. Invalid or unavailable items are ignored, and a custom pool with no valid items falls back to the default pool. Repeat an entry to give it additional equal-probability slots.
+
+Items from other Workshop mods use their Script FullType, not their Steam Workshop ID. Enable and install each source mod on the server and every client by adding its Mod ID to `Mods=` and its Workshop ID to `WorkshopItems=`. LootBox does not declare these optional source mods in `require=`.
+
 ## Test
 
 - With the default $10 cost, confirm that 9 cash items are rejected without being consumed and 10 are accepted and consumed. Test each accepted cash type, mixed currency types, and cash inside a nested bag.
@@ -37,6 +41,8 @@ The **LootBox** sandbox page can enable or disable the mod. **Cost Per Spin ($)*
 - Load an existing save after updating; confirm newly processed stores can deploy machines while existing machine items and placed machines remain intact.
 - Confirm all four placed orientations show the **Open Crate** action.
 - With **Free Orders** enabled, set each rarity chance to 100 in turn (and the others to 0) and confirm all five tiers award exactly one item type with the expected color and quantity.
+- Configure a rarity with vanilla and Workshop item FullTypes; confirm valid entries replace its defaults, appear in the reel, and grant the configured quantity.
+- Include malformed, unavailable, and out-of-range entries; confirm they are ignored, logged once, and an all-invalid pool falls back to defaults without consuming money on an error.
 - Confirm a vanilla Dr. Oids cabinet never shows the action, while a Gatcha Machine keeps its name, icon, and action after repeated pickup/place cycles.
 - Confirm radios and the PAWS pinball machine do not show **Open Crate**, and opening from more than two tiles away is rejected.
 - In multiplayer, open a crate directly from the machine; confirm inventory changes appear on both client and server and the same request cannot be claimed twice.
@@ -44,4 +50,4 @@ The **LootBox** sandbox page can enable or disable the mod. **Cost Per Spin ($)*
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.
 - The shared loot file asserts at load time that the default rarity weights total 100 and every default roll from 1 through 100 maps to a valid rarity.
 
-Edit single-item pools in `42/media/lua/shared/LootBox/LootBoxLoot.lua`; configure rarity chances from the sandbox options.
+Edit default pools in `42/media/lua/shared/LootBox/LootBoxLoot.lua`; configure rarity chances and optional replacement pools from the sandbox options.

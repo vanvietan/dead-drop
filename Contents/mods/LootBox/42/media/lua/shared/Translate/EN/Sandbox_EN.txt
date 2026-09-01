@@ -13,17 +13,32 @@ Sandbox_EN = {
     Sandbox_LootBox_CommonChance = "Common Chance (%)",
     Sandbox_LootBox_CommonChance_tooltip = "Relative chance for a Common crate. All five rarity values are normalized automatically.",
 
+    Sandbox_LootBox_CommonItems = "Common Items",
+    Sandbox_LootBox_CommonItems_tooltip = "Optional replacement pool. Format: Module.Item:Quantity;OtherMod.Item:Quantity. Leave blank to use defaults.",
+
     Sandbox_LootBox_UncommonChance = "Uncommon Chance (%)",
     Sandbox_LootBox_UncommonChance_tooltip = "Relative chance for an Uncommon crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_UncommonItems = "Uncommon Items",
+    Sandbox_LootBox_UncommonItems_tooltip = "Optional replacement pool. Format: Module.Item:Quantity;OtherMod.Item:Quantity. Leave blank to use defaults.",
 
     Sandbox_LootBox_RareChance = "Rare Chance (%)",
     Sandbox_LootBox_RareChance_tooltip = "Relative chance for a Rare crate. All five rarity values are normalized automatically.",
 
+    Sandbox_LootBox_RareItems = "Rare Items",
+    Sandbox_LootBox_RareItems_tooltip = "Optional replacement pool. Format: Module.Item:Quantity;OtherMod.Item:Quantity. Leave blank to use defaults.",
+
     Sandbox_LootBox_EpicChance = "Epic Chance (%)",
     Sandbox_LootBox_EpicChance_tooltip = "Relative chance for an Epic crate. All five rarity values are normalized automatically.",
 
+    Sandbox_LootBox_EpicItems = "Epic Items",
+    Sandbox_LootBox_EpicItems_tooltip = "Optional replacement pool. Format: Module.Item:Quantity;OtherMod.Item:Quantity. Leave blank to use defaults.",
+
     Sandbox_LootBox_ContrabandChance = "Contraband Chance (%)",
     Sandbox_LootBox_ContrabandChance_tooltip = "Relative chance for a Contraband crate. All five rarity values are normalized automatically.",
+
+    Sandbox_LootBox_ContrabandItems = "Contraband Items",
+    Sandbox_LootBox_ContrabandItems_tooltip = "Optional replacement pool. Format: Module.Item:Quantity;OtherMod.Item:Quantity. Leave blank to use defaults.",
 
     Sandbox_LootBox_DebugLogging = "Debug Logging",
     Sandbox_LootBox_DebugLogging_tooltip = "Write successful orders and crate results to console.txt and the server console.",

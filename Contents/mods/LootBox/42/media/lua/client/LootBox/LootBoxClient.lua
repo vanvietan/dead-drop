@@ -76,7 +76,9 @@ function LootBoxOpenPanel:new(rarity, lootText, requestId)
     assert(#panel.loot <= 4, "[LootBox] roulette panel supports at most four loot entries")
     panel.reel = {}
     local candidates = {}
-    for _, pool in pairs(LootBoxLoot.itemPools) do
+    local options = SandboxVars and SandboxVars.LootBox or nil
+    for _, rarity in ipairs(LootBoxLoot.rarities) do
+        local pool = LootBoxLoot.configuredItemPool(rarity.name, options)
         for _, entry in ipairs(pool) do
             local scriptItem = ScriptManager.instance:FindItem(entry.fullType)
             if scriptItem then table.insert(candidates, scriptItem:getNormalTexture()) end

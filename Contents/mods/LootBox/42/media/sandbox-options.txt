@@ -36,6 +36,14 @@ option LootBox.CommonChance
     translation = LootBox_CommonChance,
 }
 
+option LootBox.CommonItems
+{
+    type = string,
+    default = ,
+    page = LootBox,
+    translation = LootBox_CommonItems,
+}
+
 option LootBox.UncommonChance
 {
     type = integer,
@@ -44,6 +52,14 @@ option LootBox.UncommonChance
     default = 25,
     page = LootBox,
     translation = LootBox_UncommonChance,
+}
+
+option LootBox.UncommonItems
+{
+    type = string,
+    default = ,
+    page = LootBox,
+    translation = LootBox_UncommonItems,
 }
 
 option LootBox.RareChance
@@ -56,6 +72,14 @@ option LootBox.RareChance
     translation = LootBox_RareChance,
 }
 
+option LootBox.RareItems
+{
+    type = string,
+    default = ,
+    page = LootBox,
+    translation = LootBox_RareItems,
+}
+
 option LootBox.EpicChance
 {
     type = integer,
@@ -66,6 +90,14 @@ option LootBox.EpicChance
     translation = LootBox_EpicChance,
 }
 
+option LootBox.EpicItems
+{
+    type = string,
+    default = ,
+    page = LootBox,
+    translation = LootBox_EpicItems,
+}
+
 option LootBox.ContrabandChance
 {
     type = integer,
@@ -74,6 +106,14 @@ option LootBox.ContrabandChance
     default = 10,
     page = LootBox,
     translation = LootBox_ContrabandChance,
+}
+
+option LootBox.ContrabandItems
+{
+    type = string,
+    default = ,
+    page = LootBox,
+    translation = LootBox_ContrabandItems,
 }
 
 option LootBox.DebugLogging
