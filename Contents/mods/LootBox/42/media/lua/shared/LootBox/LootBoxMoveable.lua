@@ -8,14 +8,14 @@ local MACHINE_NAME = "Gatcha Machine"
 local MACHINE_TEXTURE = "Item_GatchaMachine"
 local MACHINE_GROUP = "LootBox Gatcha Machine"
 local ORIENTATION_VERSION_KEY = "LootBoxOrientationVersion"
-local ORIENTATION_VERSION = 2
--- Match the cardinal-facing order used by the source Dr. Oids sprites
--- (recreational_01_16 through recreational_01_19).
+local ORIENTATION_VERSION = 3
+-- The custom artwork does not use the cardinal order of the source Dr. Oids
+-- sheet. These facings match the visible front of each rendered machine.
 local MACHINE_SPRITES = {
-    { name = "dead_drop_gatcha_01_0", facing = "S" },
-    { name = "dead_drop_gatcha_01_1", facing = "E" },
+    { name = "dead_drop_gatcha_01_0", facing = "E" },
+    { name = "dead_drop_gatcha_01_1", facing = "N" },
     { name = "dead_drop_gatcha_01_2", facing = "W" },
-    { name = "dead_drop_gatcha_01_3", facing = "N" },
+    { name = "dead_drop_gatcha_01_3", facing = "S" },
 }
 local MACHINE_SPRITE_NAMES = {}
 for _, def in ipairs(MACHINE_SPRITES) do MACHINE_SPRITE_NAMES[def.name] = true end
@@ -25,11 +25,21 @@ local LEGACY_SPRITES = {
     recreational_01_18 = MACHINE_SPRITES[3].name,
     recreational_01_19 = MACHINE_SPRITES[4].name,
 }
-local OLD_ORIENTATION_SPRITES = {
-    dead_drop_gatcha_01_0 = MACHINE_SPRITES[3].name,
-    dead_drop_gatcha_01_1 = MACHINE_SPRITES[4].name,
-    dead_drop_gatcha_01_2 = MACHINE_SPRITES[2].name,
-    dead_drop_gatcha_01_3 = MACHINE_SPRITES[1].name,
+local ORIENTATION_MIGRATIONS = {
+    -- Original mapping: W, N, E, S.
+    [1] = {
+        dead_drop_gatcha_01_0 = MACHINE_SPRITES[3].name,
+        dead_drop_gatcha_01_1 = MACHINE_SPRITES[2].name,
+        dead_drop_gatcha_01_2 = MACHINE_SPRITES[1].name,
+        dead_drop_gatcha_01_3 = MACHINE_SPRITES[4].name,
+    },
+    -- Version 2 mapping: S, E, W, N.
+    [2] = {
+        dead_drop_gatcha_01_0 = MACHINE_SPRITES[4].name,
+        dead_drop_gatcha_01_1 = MACHINE_SPRITES[1].name,
+        dead_drop_gatcha_01_2 = MACHINE_SPRITES[3].name,
+        dead_drop_gatcha_01_3 = MACHINE_SPRITES[2].name,
+    },
 }
 
 local function registerMachineSprites(manager)
@@ -68,7 +78,9 @@ local function migrateLegacyObject(object)
     local modData = object:getModData()
     if modData[ORIENTATION_VERSION_KEY] == ORIENTATION_VERSION then return name end
 
-    local replacement = LEGACY_SPRITES[name] or OLD_ORIENTATION_SPRITES[name]
+    local oldVersion = tonumber(modData[ORIENTATION_VERSION_KEY]) or 1
+    local migration = ORIENTATION_MIGRATIONS[oldVersion]
+    local replacement = LEGACY_SPRITES[name] or (migration and migration[name])
     if not replacement then return name end
 
     object:setSprite(replacement)
