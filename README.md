@@ -15,7 +15,7 @@ For a manually configured multiplayer server, add `LootBox` to `Mods=` and insta
 
 ## Use
 
-1. Find a deployed **Gatcha Machine** in a convenience store or gas station. Each eligible building has a fixed 70% chance to receive one, and no building receives more than one. The machine can be used there or picked up and moved back to your base.
+1. Find a deployed **Gatcha Machine** in a convenience store or gas station. Each eligible building has a fixed 100% chance to receive one, and no building receives more than one. The machine can be used there or picked up and moved back to your base.
 2. Carry enough `Money`, `Gold Coin`, or `Silver Coin` items to cover the spin cost. The default cost is $10; each item counts as $1, mixed currency types are accepted, and money bundles do not count.
 3. Stand within two tiles of the placed machine. It does not need power.
 4. Right-click the machine and choose **Open Crate**.
