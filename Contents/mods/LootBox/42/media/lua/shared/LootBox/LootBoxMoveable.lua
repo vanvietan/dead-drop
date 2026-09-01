@@ -7,11 +7,15 @@ local MARKER = "LootBoxGatchaMachine"
 local MACHINE_NAME = "Gatcha Machine"
 local MACHINE_TEXTURE = "Item_GatchaMachine"
 local MACHINE_GROUP = "LootBox Gatcha Machine"
+local ORIENTATION_VERSION_KEY = "LootBoxOrientationVersion"
+local ORIENTATION_VERSION = 2
+-- Match the cardinal-facing order used by the source Dr. Oids sprites
+-- (recreational_01_16 through recreational_01_19).
 local MACHINE_SPRITES = {
-    { name = "dead_drop_gatcha_01_0", facing = "W" },
-    { name = "dead_drop_gatcha_01_1", facing = "N" },
-    { name = "dead_drop_gatcha_01_2", facing = "E" },
-    { name = "dead_drop_gatcha_01_3", facing = "S" },
+    { name = "dead_drop_gatcha_01_0", facing = "S" },
+    { name = "dead_drop_gatcha_01_1", facing = "E" },
+    { name = "dead_drop_gatcha_01_2", facing = "W" },
+    { name = "dead_drop_gatcha_01_3", facing = "N" },
 }
 local MACHINE_SPRITE_NAMES = {}
 for _, def in ipairs(MACHINE_SPRITES) do MACHINE_SPRITE_NAMES[def.name] = true end
@@ -20,6 +24,12 @@ local LEGACY_SPRITES = {
     recreational_01_17 = MACHINE_SPRITES[2].name,
     recreational_01_18 = MACHINE_SPRITES[3].name,
     recreational_01_19 = MACHINE_SPRITES[4].name,
+}
+local OLD_ORIENTATION_SPRITES = {
+    dead_drop_gatcha_01_0 = MACHINE_SPRITES[3].name,
+    dead_drop_gatcha_01_1 = MACHINE_SPRITES[4].name,
+    dead_drop_gatcha_01_2 = MACHINE_SPRITES[2].name,
+    dead_drop_gatcha_01_3 = MACHINE_SPRITES[1].name,
 }
 
 local function registerMachineSprites(manager)
@@ -53,10 +63,17 @@ end
 
 local function migrateLegacyObject(object)
     local name = spriteName(object)
-    local replacement = name and LEGACY_SPRITES[name]
-    if not replacement or not hasMarker(object) then return name end
+    if not name or not hasMarker(object) then return name end
+
+    local modData = object:getModData()
+    if modData[ORIENTATION_VERSION_KEY] == ORIENTATION_VERSION then return name end
+
+    local replacement = LEGACY_SPRITES[name] or OLD_ORIENTATION_SPRITES[name]
+    if not replacement then return name end
 
     object:setSprite(replacement)
+    modData[ORIENTATION_VERSION_KEY] = ORIENTATION_VERSION
+    if object.transmitModData then object:transmitModData() end
     if isClient and isClient() then object:transmitUpdatedSpriteToServer() end
     if isServer and isServer() then object:transmitUpdatedSpriteToClients() end
     return replacement
@@ -82,6 +99,7 @@ end
 local function markItem(item)
     if not item or not item.getModData then return end
     item:getModData()[MARKER] = true
+    item:getModData()[ORIENTATION_VERSION_KEY] = ORIENTATION_VERSION
     if item.setName then item:setName(MACHINE_NAME) end
     if item.setTexture and getTexture then
         local texture = getTexture(MACHINE_TEXTURE)
@@ -94,6 +112,7 @@ local function markObject(object)
     local name = spriteName(object)
     if not name or MACHINE_SPRITE_NAMES[name] ~= true then return end
     object:getModData()[MARKER] = true
+    object:getModData()[ORIENTATION_VERSION_KEY] = ORIENTATION_VERSION
     if object.transmitModData then object:transmitModData() end
 end
 
