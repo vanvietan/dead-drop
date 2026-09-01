@@ -133,9 +133,12 @@ local function onLoadGridSquare(square)
     -- a duplicate.
     if hasLoadedMachine(building) then
         data[key] = "placed"
+        debugLog("claimed existing machine building=" .. key)
         return
     end
 
+    -- A missing key includes buildings explored before LootBox was enabled.
+    -- They are backfilled lazily as their grid squares load again.
     if not state then
         state = ZombRand(100) < SPAWN_CHANCE and "pending" or "skipped"
         data[key] = state
