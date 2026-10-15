@@ -4,6 +4,18 @@
 
 local MOD_ID = "LootBox"
 local MANIFEST = "media/viewpoint/lootbox.properties"
+local MACHINE_SPRITES = {
+    "dead_drop_gatcha_01_0",
+    "dead_drop_gatcha_01_1",
+    "dead_drop_gatcha_01_2",
+    "dead_drop_gatcha_01_3",
+}
+-- Vanilla tile whose B42 tile geometry is a single centred box about the
+-- machine's size (0.6 x 0.6 x 1.75 tiles). Viewpoint draws a sprite without a
+-- loaded pack model on its tile geometry, and custom sprites have none, so
+-- without this the machine is invisible whenever the model is not on the GPU
+-- (for example when Viewpoint's model-pack memory is full).
+local GEOMETRY_TILE = "lighting_indoor_03_5"
 
 local registered = false
 
@@ -18,6 +30,24 @@ local function register()
     end
 end
 
-Events.OnGameBoot.Add(register)
-Events.OnGameStart.Add(register)
-register()
+local function assignGeometry()
+    if not TileDepthTextureAssignmentManager then return end
+    local ok, err = pcall(function()
+        local manager = TileDepthTextureAssignmentManager.getInstance()
+        for _, name in ipairs(MACHINE_SPRITES) do
+            if not manager:getAssignedTileName("game", name) then
+                manager:assignTileName("game", name, GEOMETRY_TILE)
+            end
+        end
+    end)
+    if not ok then print("[LootBox] Tile geometry fallback: " .. tostring(err)) end
+end
+
+local function setup()
+    assignGeometry()
+    register()
+end
+
+Events.OnGameBoot.Add(setup)
+Events.OnGameStart.Add(setup)
+setup()

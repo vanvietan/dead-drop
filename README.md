@@ -36,6 +36,8 @@ Items from other Workshop mods use their Script FullType, not their Steam Worksh
 
 When [Viewpoint](https://steamcommunity.com/workshop/filedetails/?id=3809306528) is enabled, the Gatcha Machine renders as a 3D model instead of its isometric sprite. LootBox registers a Viewpoint model pack (`common/media/viewpoint/lootbox.properties`) from `42/media/lua/client/LootBox/LootBoxViewpoint.lua`; without Viewpoint this does nothing, and LootBox does not require Viewpoint or ZombieBuddy.
 
+Viewpoint only loads pack models while its model-pack memory has room (Settings window, Delete key, memory cap for model packs; default 128 MiB). With many packs installed, such as Voxel Studio or Visible Loot, the cap can fill up and Viewpoint turns new models away. The machine then falls back to the box-shaped tile geometry of `lighting_indoor_03_5`, which LootBox assigns to its sprites, so it never becomes invisible. Raise the cap (for example to 256 MiB) to see the full model.
+
 The model, atlas, and manifest are generated. To change the shape, colours, or per-facing rotation, edit and re-run:
 
 ```
