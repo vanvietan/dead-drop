@@ -32,6 +32,16 @@ Each rarity also has an optional item-pool field. Use `Module.Item:Quantity` ent
 
 Items from other Workshop mods use their Script FullType, not their Steam Workshop ID. Enable and install each source mod on the server and every client by adding its Mod ID to `Mods=` and its Workshop ID to `WorkshopItems=`. LootBox does not declare these optional source mods in `require=`.
 
+## Viewpoint (first-person) Support
+
+When [Viewpoint](https://steamcommunity.com/workshop/filedetails/?id=3809306528) is enabled, the Gatcha Machine renders as a 3D model instead of its isometric sprite. LootBox registers a Viewpoint model pack (`common/media/viewpoint/lootbox.properties`) from `42/media/lua/client/LootBox/LootBoxViewpoint.lua`; without Viewpoint this does nothing, and LootBox does not require Viewpoint or ZombieBuddy.
+
+The model, atlas, and manifest are generated. To change the shape, colours, or per-facing rotation, edit and re-run:
+
+```
+powershell -ExecutionPolicy Bypass -File tools/viewpoint/gen_gatcha_model.ps1
+```
+
 ## Test
 
 - With the default $10 cost, confirm that 9 cash items are rejected without being consumed and 10 are accepted and consumed. Test each accepted cash type, mixed currency types, and cash inside a nested bag.
@@ -47,6 +57,7 @@ Items from other Workshop mods use their Script FullType, not their Steam Worksh
 - Confirm radios and the PAWS pinball machine do not show **Open Crate**, and opening from more than two tiles away is rejected.
 - In multiplayer, open a crate directly from the machine; confirm inventory changes appear on both client and server and the same request cannot be claimed twice.
 - Disconnect during the reel, reconnect, and use a machine again; confirm the same result resumes without consuming more cash.
+- With Viewpoint enabled, confirm `console.txt` logs `[LootBox] Registered Viewpoint model pack`, the machine renders as a 3D model in all four orientations with its front matching the isometric sprite, and **Open Crate** still works in first person.
 - Check `~/Zomboid/console.txt` and the server console for new Lua errors.
 - The shared loot file asserts at load time that the default rarity weights total 100 and every default roll from 1 through 100 maps to a valid rarity.
 
