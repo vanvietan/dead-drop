@@ -48,6 +48,8 @@ local function registerMachineSprites(manager)
         sprite:setName(def.name)
         local properties = sprite:getProperties()
         properties:set("BlocksPlacement")
+        -- Blocks movement like a vanilla vending machine without blocking sight.
+        properties:set("solidtrans")
         properties:set("CustomItem", ITEM_TYPE)
         properties:set("CustomName", MACHINE_NAME)
         properties:set("Facing", def.facing)
